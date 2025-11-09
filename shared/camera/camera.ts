@@ -1,8 +1,14 @@
+import { Camera } from 'expo-camera';
+
 export type CameraPermissionStatus = {
   granted: boolean;
+  canAskAgain: boolean;
 };
 
 export async function requestCameraPermissionsAsync(): Promise<CameraPermissionStatus> {
-  // TODO: expo-camera 연동 예정
-  return { granted: true };
+  const { status, canAskAgain, granted } = await Camera.requestCameraPermissionsAsync();
+  return {
+    granted: status === 'granted' || granted,
+    canAskAgain,
+  };
 }
