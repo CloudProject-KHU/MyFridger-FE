@@ -5,6 +5,8 @@ export type Ingredient = {
   name: string;
   category?: IngredientCategory;
   expiresAt?: string;
+  addedAt?: string;
+  expiresOn?: string;
   memo?: string;
   imageUri?: string;
 };

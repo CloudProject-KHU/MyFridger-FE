@@ -1,7 +1,9 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Ingredient } from '@features/ingredients/types';
+import SquareCheckIcon from '@/assets/images/square-check.svg';
+import IngredientCard from './IngredientCard';
 
 export type IngredientCardSelectableProps = {
   ingredient: Ingredient;
@@ -14,37 +16,35 @@ export default function IngredientCardSelectable({
   selected = false,
   onPress,
 }: IngredientCardSelectableProps) {
+  const subtitle =
+    ingredient.expiresAt != null && ingredient.expiresAt.length > 0
+      ? `${ingredient.expiresAt} 남음`
+      : '소비기한을 입력하세요.';
+
   return (
-    <Pressable
-      style={[styles.container, selected && styles.selected]}
-      onPress={() => onPress?.(ingredient)}>
-      <Text style={styles.name}>{ingredient.name}</Text>
-      {ingredient.category && <Text style={styles.category}>{ingredient.category}</Text>}
-    </Pressable>
+    <IngredientCard
+      ingredient={ingredient}
+      selected={selected}
+      onPress={() => onPress?.(ingredient)}
+      secondaryText={subtitle}
+      accessory={
+        <View style={[styles.checkbox, selected && styles.checkboxSelected]}>
+          <SquareCheckIcon
+            width={20}
+            height={20}
+            color={selected ? '#FF3B30' : '#D1D5DB'}
+          />
+        </View>
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: '48%',
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    alignItems: 'center',
-    gap: 4,
+  checkbox: {
+    padding: 2,
   },
-  selected: {
-    borderColor: '#2563eb',
-    backgroundColor: '#eff6ff',
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  category: {
-    fontSize: 12,
-    color: '#666',
+  checkboxSelected: {
+    borderRadius: 8,
   },
 });

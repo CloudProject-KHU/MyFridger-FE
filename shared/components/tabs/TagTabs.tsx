@@ -58,12 +58,14 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   tab: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: '#d4d4d4',
+    borderColor: '#dbdbdb',
     backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   tabActive: {
     borderColor: '#111827',
