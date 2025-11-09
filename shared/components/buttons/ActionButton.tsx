@@ -111,9 +111,10 @@ function getToneColors(tone: ActionButtonTone, palette: Palette) {
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 24,
-    paddingVertical: 14,
+    borderRadius: 16,
+    height: 48,
     paddingHorizontal: 20,
+    marginBottom: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: StyleSheet.hairlineWidth,
