@@ -12,21 +12,21 @@ import {
 } from '@shared/constants/ingredientCategories';
 
 const SAMPLE_INGREDIENTS: Ingredient[] = [
-  { id: '1', name: '체다치즈', category: 'dairy_processed' },
-  { id: '2', name: '양파', category: 'vegetable' },
-  { id: '3', name: '사과', category: 'fruit' },
-  { id: '4', name: '돼지고기', category: 'meat' },
-  { id: '5', name: '연어', category: 'seafood' },
-  { id: '6', name: '간장', category: 'seasoning' },
-  { id: '7', name: '감자', category: 'vegetable' },
-  { id: '8', name: '당근', category: 'vegetable' },
-  { id: '9', name: '토마토', category: 'vegetable' },
-  { id: '10', name: '달걀', category: 'home_meal' },
-  { id: '11', name: '두부', category: 'home_meal' },
-  { id: '12', name: '조개', category: 'seafood' },
+  { id: '1', name: '상추', category: 'vegetable', iconId: 'lettuce' },
+  { id: '2', name: '토마토', category: 'vegetable', iconId: 'tomato' },
+  { id: '3', name: '사과', category: 'fruit', iconId: 'apple' },
+  { id: '4', name: '복숭아', category: 'fruit', iconId: 'peach' },
+  { id: '5', name: '돼지고기', category: 'meat', iconId: 'pork' },
+  { id: '6', name: '새우', category: 'seafood', iconId: 'shrimp' },
+  { id: '7', name: '간장', category: 'seasoning', iconId: 'soy_sauce' },
+  { id: '8', name: '참기름', category: 'seasoning', iconId: 'sesame_oil' },
+  { id: '9', name: '치즈', category: 'dairy_processed', iconId: 'cheese' },
+  { id: '10', name: '우유', category: 'dairy_processed', iconId: 'milk' },
+  { id: '11', name: '집밥 메뉴', category: 'homemade', iconId: 'homemade' },
+  { id: '12', name: '기타 재료', category: 'etc', iconId: 'etc' },
 ];
 
-const ALREADY_ADDED_IDS = new Set(['6', '10', '11']);
+const ALREADY_ADDED_IDS = new Set(['7', '10', '11']);
 
 const CARD_COLUMNS = 4;
 const CARD_GAP = 10;

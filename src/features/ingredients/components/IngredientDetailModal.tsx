@@ -10,10 +10,10 @@ import {
 
 import CalendarIcon from '@/assets/images/calandar.svg';
 import DeleteIcon from '@/assets/images/delete.svg';
-import CheeseIcon from '@/assets/images/ingredients/cheese.svg';
 import { Ingredient } from '@features/ingredients/types';
 import { Badge } from '@shared/components/badges/Badge';
 import { INGREDIENT_CATEGORY_LABELS } from '@shared/constants/ingredientCategories';
+import { getIngredientIconComponent } from '@/shared/utils/ingredientIcon';
 
 type IngredientDetailModalProps = {
   visible: boolean;
@@ -36,6 +36,7 @@ export default function IngredientDetailModal({
     ? INGREDIENT_CATEGORY_LABELS[ingredient.category] ?? ingredient.category
     : undefined;
   const expireBadge = resolveExpireBadge(ingredient.expiresAt);
+  const IconComponent = getIngredientIconComponent(ingredient);
 
   const handleDelete = () => {
     if (ingredient && onDelete) {
@@ -51,7 +52,7 @@ export default function IngredientDetailModal({
           <View style={styles.handle} />
           <View style={styles.header}>
             <View style={styles.iconWrapper}>
-              <CheeseIcon width={60} height={60} />
+              {IconComponent ? <IconComponent width={60} height={60} /> : null}
             </View>
             <View style={styles.headerTexts}>
               <Text style={styles.name}>{ingredient.name}</Text>
@@ -114,7 +115,7 @@ function resolveExpireBadge(expiresAt?: string) {
     const days = sign === '+' ? -value : value;
     return {
       label: `D${sign || '-'}${value}`,
-      variant: days <= 3 ? 'warning' : 'fresh',
+      variant: days <= 7 ? 'warning' : 'fresh',
     } as const;
   }
 

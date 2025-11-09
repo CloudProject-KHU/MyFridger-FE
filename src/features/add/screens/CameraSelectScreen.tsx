@@ -26,14 +26,14 @@ const CARD_GAP = 10;
 const HORIZONTAL_PADDING = 16;
 
 const SAMPLE_RECOGNIZED: Ingredient[] = [
-  { id: 'ocr-1', name: '간장', category: 'seasoning' },
-  { id: 'ocr-2', name: '양파', category: 'vegetable' },
-  { id: 'ocr-3', name: '우유', category: 'home_meal' },
-  { id: 'ocr-4', name: '오이', category: 'vegetable' },
-  { id: 'ocr-5', name: '배추', category: 'vegetable' },
-  { id: 'ocr-6', name: '골뱅이', category: 'seafood' },
-  { id: 'ocr-7', name: '앞다리', category: 'meat' },
-  { id: 'ocr-8', name: '치즈', category: 'dairy_processed' },
+  { id: 'ocr-1', name: '간장', category: 'seasoning', iconId: 'soy_sauce' },
+  { id: 'ocr-2', name: '양파', category: 'vegetable', iconId: 'onion' },
+  { id: 'ocr-3', name: '우유', category: 'dairy_processed', iconId: 'milk' },
+  { id: 'ocr-4', name: '상추', category: 'vegetable', iconId: 'lettuce' },
+  { id: 'ocr-5', name: '돼지고기', category: 'meat', iconId: 'pork' },
+  { id: 'ocr-6', name: '새우', category: 'seafood', iconId: 'shrimp' },
+  { id: 'ocr-7', name: '치즈', category: 'dairy_processed', iconId: 'cheese' },
+  { id: 'ocr-8', name: '사과', category: 'fruit', iconId: 'apple' },
 ];
 
 const keyExtractor = (item: Ingredient) => item.id;
