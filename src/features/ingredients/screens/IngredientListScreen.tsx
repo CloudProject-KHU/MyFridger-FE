@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import DeleteIcon from '@/assets/images/delete.svg';
@@ -62,9 +62,14 @@ const SAMPLE_INGREDIENTS: Ingredient[] = [
   },
 ];
 
+const CARD_COLUMNS = 2;
+const CARD_GAP = 12;
+const HORIZONTAL_PADDING = 16;
+
 const keyExtractor = (item: Ingredient) => item.id;
 
 export default function IngredientListScreen() {
+  const { width: screenWidth } = useWindowDimensions();
   const router = useRouter();
   const [activeCategory, setActiveCategory] = React.useState(
     INGREDIENT_CATEGORY_OPTIONS[0].value,
@@ -84,11 +89,27 @@ export default function IngredientListScreen() {
     setDetailVisible(true);
   };
 
-  const renderItem = ({ item }: { item: Ingredient }) => (
-    <View style={styles.cardWrapper}>
-      <IngredientCard ingredient={item} onPress={() => handleSelectIngredient(item)} />
-    </View>
-  );
+  const cardWidth = React.useMemo(() => {
+    const containerWidth = screenWidth - HORIZONTAL_PADDING * 2;
+    return (containerWidth - CARD_GAP * (CARD_COLUMNS - 1)) / CARD_COLUMNS;
+  }, [screenWidth]);
+
+  const renderItem = ({ item, index }: { item: Ingredient; index: number }) => {
+    const isLastInRow = (index + 1) % CARD_COLUMNS === 0;
+    return (
+      <View
+        style={[
+          styles.cardWrapper,
+          {
+            width: cardWidth,
+            marginRight: isLastInRow ? 0 : CARD_GAP,
+          },
+        ]}
+      >
+        <IngredientCard ingredient={item} onPress={() => handleSelectIngredient(item)} />
+      </View>
+    );
+  };
 
   const handleNavigateToRemove = React.useCallback(() => {
     router.push('/ingredients/remove');
@@ -114,7 +135,7 @@ export default function IngredientListScreen() {
           keyExtractor={keyExtractor}
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
-          numColumns={2}
+          numColumns={CARD_COLUMNS}
           columnWrapperStyle={styles.columnWrapper}
           showsVerticalScrollIndicator={false}
         />
@@ -143,24 +164,24 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 16,
     paddingVertical: 8,
   },
   tabsContainer: {
+    paddingHorizontal: 16,
     marginBottom: 12,
   },
   tabsContent: {
     paddingHorizontal: 0,
   },
   columnWrapper: {
-    gap: 12,
+    justifyContent: 'flex-start',
+    marginBottom: 0,
   },
   listContent: {
     paddingBottom: 24,
-    gap: 12,
+    paddingHorizontal: 16,
   },
   cardWrapper: {
-    //flex: 1,
-    width: '48%',
+    marginBottom: CARD_GAP,
   },
 });

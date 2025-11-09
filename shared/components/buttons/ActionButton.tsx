@@ -80,12 +80,12 @@ function getToneColors(tone: ActionButtonTone, palette: Palette) {
   switch (tone) {
     case 'primary':
       return {
-        background: palette.tint,
-        text: palette.background,
-        subText: palette.background,
+        background: '#D9D9D9',
+        text: '#111111',
+        subText: '#111111',
         border: 'transparent',
-        disabledBackground: '#9ec5e6',
-        disabledText: '#f5f9ff',
+        disabledBackground: '#E5E5E5',
+        disabledText: '#A1A1A1',
       };
     case 'destructive':
       return {
