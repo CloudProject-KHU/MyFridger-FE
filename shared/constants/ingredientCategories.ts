@@ -12,7 +12,7 @@ export const INGREDIENT_CATEGORY_OPTIONS: IngredientCategoryOption[] = [
   { label: '유제품/가공', value: 'dairy_processed' },
   { label: '양념/조미료', value: 'seasoning' },
   { label: '기타', value: 'etc' },
-  { label: '집밥', value: 'home_meal' },
+  { label: '집밥', value: 'homemade' },
 ];
 
 export const INGREDIENT_CATEGORY_LABELS: Record<string, string> = INGREDIENT_CATEGORY_OPTIONS.reduce(

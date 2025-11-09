@@ -11,12 +11,12 @@ import Header from '@shared/components/navigation/Header';
 import TagTabs from '@shared/components/tabs/TagTabs';
 
 const SAMPLE_INGREDIENTS: Ingredient[] = [
-  { id: '1', name: '치즈', category: 'dairy_processed', expiresAt: 'D-3' },
-  { id: '2', name: '양파', category: 'vegetable', expiresAt: 'D-13' },
-  { id: '3', name: '간장', category: 'seasoning', expiresAt: 'D-17' },
-  { id: '4', name: '연어', category: 'seafood', expiresAt: 'D-5' },
-  { id: '5', name: '감자', category: 'home_meal', expiresAt: 'D-10' },
-  { id: '6', name: '사과', category: 'fruit', expiresAt: 'D-20' },
+  { id: '1', name: '치즈', category: 'dairy_processed', iconId: 'cheese', expiresAt: 'D-3' },
+  { id: '2', name: '양파', category: 'vegetable', iconId: 'onion', expiresAt: 'D-13' },
+  { id: '3', name: '간장', category: 'seasoning', iconId: 'soy_sauce', expiresAt: 'D-17' },
+  { id: '4', name: '생선', category: 'seafood', iconId: 'fish', expiresAt: 'D-5' },
+  { id: '5', name: '집밥 메뉴', category: 'homemade', iconId: 'homemade', expiresAt: 'D-10' },
+  { id: '6', name: '사과', category: 'fruit', iconId: 'apple', expiresAt: 'D-20' },
 ];
 
 const keyExtractor = (item: Ingredient) => item.id;

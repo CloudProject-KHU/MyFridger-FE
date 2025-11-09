@@ -1,8 +1,8 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import CheeseIcon from '@/assets/images/ingredients/cheese.svg';
 import { Ingredient } from '@features/ingredients/types';
+import { getIngredientIconComponent } from '@/shared/utils/ingredientIcon';
 
 export type IngredientSelectableCardProps = {
   ingredient: Ingredient;
@@ -19,6 +19,8 @@ export default function IngredientSelectableCard({
   added = false,
   onPress,
 }: IngredientSelectableCardProps) {
+  const IconComponent = getIngredientIconComponent(ingredient);
+
   const handlePress = () => {
     if (disabled || added) return;
     onPress?.(ingredient);
@@ -36,7 +38,7 @@ export default function IngredientSelectableCard({
       ]}
     >
       <View style={styles.iconWrapper}>
-        <CheeseIcon width={52} height={52} />
+        {IconComponent ? <IconComponent width={52} height={52} /> : null}
       </View>
       <Text style={styles.name} numberOfLines={1}>
         {ingredient.name}

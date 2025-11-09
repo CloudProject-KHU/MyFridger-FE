@@ -1,9 +1,19 @@
-export type IngredientCategory = 'vegetable' | 'meat' | 'seafood' | 'grain' | 'etc' | string;
+export type IngredientCategory =
+  | 'vegetable'
+  | 'fruit'
+  | 'meat'
+  | 'seafood'
+  | 'dairy_processed'
+  | 'seasoning'
+  | 'etc'
+  | 'homemade'
+  | string;
 
 export type Ingredient = {
   id: string;
   name: string;
   category?: IngredientCategory;
+  iconId?: string;
   expiresAt?: string;
   addedAt?: string;
   expiresOn?: string;

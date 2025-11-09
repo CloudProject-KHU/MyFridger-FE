@@ -1,10 +1,10 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import CheeseIcon from '@/assets/images/ingredients/cheese.svg';
 import { Ingredient } from '@features/ingredients/types';
 import { Badge } from '@shared/components/badges/Badge';
 import { INGREDIENT_CATEGORY_LABELS } from '@shared/constants/ingredientCategories';
+import { getIngredientIconComponent } from '@/shared/utils/ingredientIcon';
 
 type ExpireBadge = {
   label: string;
@@ -43,7 +43,7 @@ function resolveExpireBadge(expiresAt?: string): ExpireBadge | undefined {
   const label = isExpired ? `D+${Math.abs(diff)}` : `D-${diff}`;
   return {
     label,
-    variant: diff <= 3 ? 'warning' : 'fresh',
+    variant: diff <= 7 ? 'warning' : 'fresh',
   };
 }
 
@@ -62,11 +62,12 @@ export default function IngredientCard({
   onPress,
 }: IngredientCardProps) {
   const badge = resolveExpireBadge(ingredient.expiresAt);
+  const IconComponent = getIngredientIconComponent(ingredient);
 
   const content = (
     <>
       <View style={styles.iconWrapper}>
-        <CheeseIcon width={52} height={52} />
+        {IconComponent ? <IconComponent width={52} height={52} /> : null}
       </View>
       <View style={styles.accessoryWrapper}>
         {accessory ? (

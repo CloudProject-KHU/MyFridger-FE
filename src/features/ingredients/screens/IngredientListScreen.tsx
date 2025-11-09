@@ -14,51 +14,57 @@ import { Ingredient } from '@features/ingredients/types';
 const SAMPLE_INGREDIENTS: Ingredient[] = [
   {
     id: '1',
-    name: '체다치즈',
-    category: 'dairy_processed',
-    expiresAt: 'D-3',
-    addedAt: '2025-10-01',
-    expiresOn: '2025-10-29',
+    name: '양파',
+    category: 'vegetable',
+    iconId: 'onion',
+    expiresAt: 'D-5',
+    addedAt: '2025-10-10',
+    expiresOn: '2025-10-30',
   },
   {
     id: '2',
-    name: '체다치즈',
-    category: 'dairy_processed',
-    expiresAt: 'D-3',
-    addedAt: '2025-10-01',
-    expiresOn: '2025-10-29',
+    name: '사과',
+    category: 'fruit',
+    iconId: 'apple',
+    expiresAt: 'D-10',
+    addedAt: '2025-10-05',
+    expiresOn: '2025-11-05',
   },
   {
     id: '3',
-    name: '체다치즈',
-    category: 'dairy_processed',
-    expiresAt: 'D-3',
-    addedAt: '2025-10-01',
-    expiresOn: '2025-10-29',
+    name: '새우',
+    category: 'seafood',
+    iconId: 'shrimp',
+    expiresAt: 'D-2',
+    addedAt: '2025-10-20',
+    expiresOn: '2025-10-27',
   },
   {
     id: '4',
     name: '체다치즈',
     category: 'dairy_processed',
+    iconId: 'cheese',
     expiresAt: 'D-3',
-    addedAt: '2025-10-01',
-    expiresOn: '2025-10-29',
+    addedAt: '2025-10-18',
+    expiresOn: '2025-11-01',
   },
   {
     id: '5',
-    name: '체다치즈',
-    category: 'dairy_processed',
-    expiresAt: 'D-3',
-    addedAt: '2025-10-01',
-    expiresOn: '2025-10-29',
+    name: '돼지고기',
+    category: 'meat',
+    iconId: 'pork',
+    expiresAt: 'D-1',
+    addedAt: '2025-10-22',
+    expiresOn: '2025-10-26',
   },
   {
     id: '6',
-    name: '체다치즈',
-    category: 'dairy_processed',
-    expiresAt: 'D-3',
-    addedAt: '2025-10-01',
-    expiresOn: '2025-10-29',
+    name: '케첩',
+    category: 'seasoning',
+    iconId: 'ketchup',
+    expiresAt: 'D-30',
+    addedAt: '2025-09-01',
+    expiresOn: '2026-03-01',
   },
 ];
 
@@ -78,10 +84,27 @@ export default function IngredientListScreen() {
   const [isDetailVisible, setDetailVisible] = React.useState(false);
 
   const filteredIngredients = React.useMemo(() => {
-    if (activeCategory === 'all') {
-      return SAMPLE_INGREDIENTS;
-    }
-    return SAMPLE_INGREDIENTS.filter((ingredient) => ingredient.category === activeCategory);
+    const filtered =
+      activeCategory === 'all'
+        ? SAMPLE_INGREDIENTS
+        : SAMPLE_INGREDIENTS.filter((ingredient) => ingredient.category === activeCategory);
+
+    const parseExpiry = (expiresAt?: string) => {
+      if (!expiresAt) return Number.POSITIVE_INFINITY;
+      const match = /^D([+-]?)(\d+)$/.exec(expiresAt.trim());
+      if (!match) return Number.POSITIVE_INFINITY;
+      const sign = match[1];
+      const value = Number(match[2]);
+      // D-5 -> { sign: '', value: 5 } => 5 days left, but we sort ascending so use positive
+      // D+2 -> expired 2 days ago => return -2 to keep at top
+      if (sign === '+') {
+        return -value; // expired -> highest priority
+      }
+      const remaining = value;
+      return remaining;
+    };
+
+    return [...filtered].sort((a, b) => parseExpiry(a.expiresAt) - parseExpiry(b.expiresAt));
   }, [activeCategory]);
 
   const handleSelectIngredient = (ingredient: Ingredient) => {
