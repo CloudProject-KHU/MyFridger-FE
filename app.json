@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "test",
-    "slug": "test",
+    "name": "myfridger",
+    "slug": "myfridger",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "test",
+    "scheme": "myfridger",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
