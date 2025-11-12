@@ -11,12 +11,16 @@ import Header from '@shared/components/navigation/Header';
 import TagTabs from '@shared/components/tabs/TagTabs';
 
 const SAMPLE_INGREDIENTS: Ingredient[] = [
-  { id: '1', name: '치즈', category: 'dairy_processed', iconId: 'cheese', expiresAt: 'D-3' },
+  { id: '1', name: '간장', category: 'seasoning', iconId: 'soy_sauce', expiresAt: 'D-17' },
   { id: '2', name: '양파', category: 'vegetable', iconId: 'onion', expiresAt: 'D-13' },
-  { id: '3', name: '간장', category: 'seasoning', iconId: 'soy_sauce', expiresAt: 'D-17' },
-  { id: '4', name: '생선', category: 'seafood', iconId: 'fish', expiresAt: 'D-5' },
-  { id: '5', name: '집밥 메뉴', category: 'homemade', iconId: 'homemade', expiresAt: 'D-10' },
-  { id: '6', name: '사과', category: 'fruit', iconId: 'apple', expiresAt: 'D-20' },
+  { id: '3', name: '우유', category: 'dairy_processed', iconId: 'milk', expiresAt: 'D-7' },
+  { id: '4', name: '상추', category: 'vegetable', iconId: 'lettuce', expiresAt: 'D-6' },
+  { id: '5', name: '돼지고기', category: 'meat', iconId: 'pork', expiresAt: 'D-4' },
+  { id: '6', name: '새우', category: 'seafood', iconId: 'shrimp', expiresAt: 'D-2' },
+  { id: '7', name: '치즈', category: 'dairy_processed', iconId: 'cheese', expiresAt: 'D-1' },
+  { id: '8', name: '진미채 볶음', category: 'homemade', iconId: 'homemade', expiresAt: 'D-8' },
+  { id: '9', name: '장조림', category: 'homemade', iconId: 'homemade', expiresAt: 'D-9' },
+  { id: '10', name: '사과', category: 'fruit', iconId: 'apple', expiresAt: 'D-10' },
 ];
 
 const keyExtractor = (item: Ingredient) => item.id;

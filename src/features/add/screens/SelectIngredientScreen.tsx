@@ -22,8 +22,8 @@ const SAMPLE_INGREDIENTS: Ingredient[] = [
   { id: '8', name: '참기름', category: 'seasoning', iconId: 'sesame_oil' },
   { id: '9', name: '치즈', category: 'dairy_processed', iconId: 'cheese' },
   { id: '10', name: '우유', category: 'dairy_processed', iconId: 'milk' },
-  { id: '11', name: '집밥 메뉴', category: 'homemade', iconId: 'homemade' },
-  { id: '12', name: '기타 재료', category: 'etc', iconId: 'etc' },
+  { id: '11', name: '진미채 볶음', category: 'homemade', iconId: 'homemade' },
+  { id: '12', name: '장조림', category: 'homemade', iconId: 'homemade' },
 ];
 
 const ALREADY_ADDED_IDS = new Set(['7', '10', '11']);
