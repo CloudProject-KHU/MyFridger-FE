@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type TagTabsOption = {
@@ -13,6 +13,10 @@ export type TagTabsProps = {
   onChange?: (value: string) => void;
   containerStyle?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
+  tabStyle?: StyleProp<ViewStyle>;
+  tabActiveStyle?: StyleProp<ViewStyle>;
+  tabLabelStyle?: StyleProp<TextStyle>;
+  tabLabelActiveStyle?: StyleProp<TextStyle>;
 };
 
 const TagTabs: FC<TagTabsProps> = ({
@@ -21,6 +25,10 @@ const TagTabs: FC<TagTabsProps> = ({
   onChange,
   containerStyle,
   contentStyle,
+  tabStyle,
+  tabActiveStyle,
+  tabLabelStyle,
+  tabLabelActiveStyle,
 }) => {
   return (
     <View style={[styles.container, containerStyle]}>
@@ -34,11 +42,23 @@ const TagTabs: FC<TagTabsProps> = ({
           return (
             <TouchableOpacity
               key={option.value}
-              style={[styles.tab, isActive && styles.tabActive]}
+              style={[
+                styles.tab,
+                tabStyle,
+                isActive && styles.tabActive,
+                isActive && tabActiveStyle,
+              ]}
               onPress={() => onChange?.(option.value)}
               activeOpacity={0.8}
             >
-              <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
+              <Text
+                style={[
+                  styles.tabLabel,
+                  tabLabelStyle,
+                  isActive && styles.tabLabelActive,
+                  isActive && tabLabelActiveStyle,
+                ]}
+              >
                 {option.label}
               </Text>
             </TouchableOpacity>
