@@ -4,6 +4,7 @@ import { FlatList, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import DeleteIcon from '@/assets/images/delete.svg';
+import SettingIcon from '@/assets/images/setting.svg';
 import Header from '@/shared/components/navigation/Header';
 import TagTabs from '@/shared/components/tabs/TagTabs';
 import { INGREDIENT_CATEGORY_OPTIONS } from '@/shared/constants/ingredientCategories';
@@ -174,10 +175,15 @@ export default function IngredientListScreen() {
     router.push('/ingredients/remove');
   }, [router]);
 
+  const handleNavigateToSettings = React.useCallback(() => {
+    router.push('/settings');
+  }, [router]);
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
       <Header
         title="나의 냉장고"
+        leftButton={{ icon: SettingIcon, onPress: handleNavigateToSettings }}
         rightButton={{ icon: DeleteIcon, onPress: handleNavigateToRemove }}
         hideDivider
       />
@@ -237,7 +243,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   listContent: {
-    paddingBottom: 24,
+    paddingBottom: 100, // 탭바 높이 고려
     paddingHorizontal: 16,
   },
   cardWrapper: {

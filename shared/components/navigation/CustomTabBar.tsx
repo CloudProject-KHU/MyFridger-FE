@@ -17,16 +17,16 @@ import CameraIcon from '@/assets/images/camera.svg';
 import EditIcon from '@/assets/images/edit.svg';
 import HomeIcon from '@/assets/images/home.svg';
 import PlusIcon from '@/assets/images/plus.svg';
+import RecipeIcon from '@/assets/images/recipe.svg';
 import SearchIcon from '@/assets/images/search.svg';
-import SettingIcon from '@/assets/images/setting.svg';
 import Colors from '@/shared/constants/Colors';
 import { useColorScheme } from '@/shared/hooks/useColorScheme';
 
-type RouteKey = 'index' | 'settings';
+type RouteKey = 'index' | 'recipes';
 
 const ROUTE_ICON: Record<RouteKey, FC<SvgProps>> = {
   index: (props) => <HomeIcon {...props} />,
-  settings: (props) => <SettingIcon {...props} />,
+  recipes: (props) => <RecipeIcon {...props} />,
 };
 
 type FloatingAction = {
@@ -60,7 +60,7 @@ export default function CustomTabBar({
   const palette = Colors[colorScheme ?? 'light'];
 
   const routes = useMemo(
-    () => state.routes.filter((route) => (['index', 'settings'] as RouteKey[]).includes(route.name as RouteKey)),
+    () => state.routes.filter((route) => (['index', 'recipes'] as RouteKey[]).includes(route.name as RouteKey)),
     [state.routes],
   );
 
