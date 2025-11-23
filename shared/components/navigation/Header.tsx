@@ -16,6 +16,7 @@ export type HeaderProps = {
   title: string;
   showBackButton?: boolean;
   onBackPress?: () => void;
+  leftButton?: HeaderButtonConfig;
   rightButton?: HeaderButtonConfig;
   hideDivider?: boolean;
 };
@@ -24,6 +25,7 @@ const Header: FC<HeaderProps> = ({
   title,
   showBackButton = false,
   onBackPress,
+  leftButton,
   rightButton,
   hideDivider = false,
 }) => {
@@ -37,7 +39,7 @@ const Header: FC<HeaderProps> = ({
     }
   };
 
-  const LeftIcon = showBackButton ? ChevronLeftIcon : null;
+  const LeftIcon = showBackButton ? ChevronLeftIcon : leftButton?.icon ?? null;
   const RightIcon = rightButton?.icon ?? null;
 
   return (
@@ -54,7 +56,11 @@ const Header: FC<HeaderProps> = ({
       <View style={styles.container}>
         <View style={styles.side}>
           {LeftIcon ? (
-            <Pressable hitSlop={8} onPress={handleBackPress} style={styles.iconButton}>
+            <Pressable
+              hitSlop={8}
+              onPress={showBackButton ? handleBackPress : leftButton?.onPress}
+              style={styles.iconButton}
+            >
               <LeftIcon width={24} height={24} color={palette.text} />
             </Pressable>
           ) : null}
