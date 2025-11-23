@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F0F0F0",
     borderRadius: 16,
     padding: 24,
-    paddingTop: 36,
+    paddingTop: 44,
     marginBottom: 12,
     position: "relative",
   },
@@ -587,8 +587,8 @@ const styles = StyleSheet.create({
   },
   removeButton: {
     position: "absolute",
-    top: 8,
-    right: 8,
+    top: 12,
+    right: 12,
     zIndex: 10,
   },
   footer: {
