@@ -14,7 +14,7 @@ import ArrowIcon from "@/assets/images/^.svg";
 import CalendarIcon from "@/assets/images/Frame.svg";
 import ChevronLeft from "@/assets/images/chevron-left.svg";
 import ChevronRight from "@/assets/images/chevron-right.svg";
-import CloseIcon from "@/assets/images/x.svg";
+import CloseIcon from "@/assets/images/close.svg";
 import ActionButton from "@shared/components/buttons/ActionButton";
 import { INGREDIENT_CATEGORY_OPTIONS } from "@shared/constants/ingredientCategories";
 
@@ -132,7 +132,7 @@ export default function ManualFormScreen() {
                 style={styles.removeButton}
                 hitSlop={8}
               >
-                <CloseIcon width={20} height={20} color="#666666" />
+                <CloseIcon width={20} height={20} />
               </Pressable>
             )}
 
@@ -396,6 +396,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F0F0F0",
     borderRadius: 12,
     padding: 16,
+    paddingTop: 36,
     marginBottom: 12,
     position: "relative",
   },
@@ -428,7 +429,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 15,
-    color: "#111111",
+    color: "#999999",
   },
   datePickerButton: {
     flexDirection: "row",
