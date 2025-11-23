@@ -11,10 +11,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import ArrowIcon from "@/assets/images/^.svg";
-import CalendarIcon from "@/assets/images/Frame.svg";
 import ChevronLeft from "@/assets/images/chevron-left.svg";
 import ChevronRight from "@/assets/images/chevron-right.svg";
 import CloseIcon from "@/assets/images/close.svg";
+import CalendarIcon from "@/assets/images/Frame.svg";
 import ActionButton from "@shared/components/buttons/ActionButton";
 import { INGREDIENT_CATEGORY_OPTIONS } from "@shared/constants/ingredientCategories";
 
@@ -116,6 +116,7 @@ export default function ManualFormScreen() {
           label="재료 추가"
           onPress={handleAddContainer}
           style={styles.addButton}
+          labelStyle={styles.addButtonLabel}
         />
       </View>
 
@@ -126,15 +127,13 @@ export default function ManualFormScreen() {
       >
         {ingredients.map((ingredient) => (
           <View key={ingredient.id} style={styles.ingredientContainer}>
-            {ingredients.length > 1 && (
-              <Pressable
-                onPress={() => handleRemoveContainer(ingredient.id)}
-                style={styles.removeButton}
-                hitSlop={8}
-              >
-                <CloseIcon width={20} height={20} />
-              </Pressable>
-            )}
+            <Pressable
+              onPress={() => handleRemoveContainer(ingredient.id)}
+              style={styles.removeButton}
+              hitSlop={8}
+            >
+              <CloseIcon width={20} height={20} />
+            </Pressable>
 
             <View style={styles.inputGroup}>
               <TextInput
@@ -239,8 +238,9 @@ export default function ManualFormScreen() {
           onSelectDate={handleSelectDate}
           initialDate={
             datePickerVisible
-              ? ingredients.find((i) => i.id === datePickerVisible.ingredientId)
-                  ?.[datePickerVisible.field] || today
+              ? ingredients.find(
+                  (i) => i.id === datePickerVisible.ingredientId
+                )?.[datePickerVisible.field] || today
               : today
           }
         />
@@ -269,9 +269,7 @@ function DatePickerModal({
   onSelectDate,
   initialDate,
 }: DatePickerModalProps) {
-  const [selectedDate, setSelectedDate] = React.useState(
-    new Date(initialDate)
-  );
+  const [selectedDate, setSelectedDate] = React.useState(new Date(initialDate));
 
   const handleConfirm = () => {
     onSelectDate(selectedDate.toISOString().split("T")[0]);
@@ -377,18 +375,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingHorizontal: 32,
+    paddingTop: 24,
   },
   addButton: {
     backgroundColor: "#EEEEEE",
-    marginBottom: 0,
+    marginBottom: 14,
+  },
+  addButtonLabel: {
+    fontWeight: "500",
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 32,
     paddingTop: 16,
     paddingBottom: 16,
   },
@@ -401,7 +402,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   inputGroup: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   input: {
     backgroundColor: "#FFFFFF",
@@ -447,7 +448,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   footer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 32,
     paddingBottom: 16,
     paddingTop: 8,
   },
@@ -491,7 +492,7 @@ const styles = StyleSheet.create({
   calendarTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#999999",
+    color: "#555555",
   },
   weekDays: {
     flexDirection: "row",
@@ -503,7 +504,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 14,
     fontWeight: "600",
-    color: "#999999",
+    color: "#666666",
   },
   daysGrid: {
     flexDirection: "row",
@@ -545,6 +546,6 @@ const styles = StyleSheet.create({
   calendarButtonText: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#999999",
+    color: "#666666",
   },
 });
