@@ -228,6 +228,7 @@ export default function ManualFormScreen() {
           label={submitButtonLabel}
           onPress={handleSubmit}
           style={styles.submitButton}
+          labelStyle={styles.submitButtonLabel}
         />
       </View>
 
@@ -411,6 +412,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     fontSize: 15,
     color: "#111111",
+    fontWeight: "500",
   },
   inputWithIcon: {
     backgroundColor: "#FFFFFF",
@@ -424,6 +426,7 @@ const styles = StyleSheet.create({
   inputText: {
     fontSize: 15,
     color: "#111111",
+    fontWeight: "500",
   },
   placeholderText: {
     color: "#999999",
@@ -455,6 +458,9 @@ const styles = StyleSheet.create({
   submitButton: {
     backgroundColor: "#D9D9D9",
     marginBottom: 0,
+  },
+  submitButtonLabel: {
+    fontWeight: "500",
   },
   modalOverlay: {
     flex: 1,
