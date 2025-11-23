@@ -21,6 +21,7 @@ import { INGREDIENT_CATEGORY_OPTIONS } from "@shared/constants/ingredientCategor
 type IngredientFormData = {
   id: string;
   name: string;
+  quantity: number;
   category: string;
   addedDate: string;
   expirationDate: string;
@@ -34,6 +35,7 @@ export default function ManualFormScreen() {
     {
       id: "1",
       name: "",
+      quantity: 1,
       category: "",
       addedDate: today,
       expirationDate: today,
@@ -59,6 +61,7 @@ export default function ManualFormScreen() {
     const newIngredient: IngredientFormData = {
       id: Date.now().toString(),
       name: "",
+      quantity: 1,
       category: "",
       addedDate: today,
       expirationDate: today,
@@ -73,7 +76,7 @@ export default function ManualFormScreen() {
   const handleUpdateField = (
     id: string,
     field: keyof IngredientFormData,
-    value: string
+    value: string | number
   ) => {
     setIngredients(
       ingredients.map((item) =>
@@ -96,6 +99,45 @@ export default function ManualFormScreen() {
       );
       setDatePickerVisible(null);
     }
+  };
+
+  const handleQuantityChange = (ingredientId: string, delta: number) => {
+    setIngredients(
+      ingredients.map((item) =>
+        item.id === ingredientId
+          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
+          : item
+      )
+    );
+  };
+
+  const handleAddDuration = (
+    ingredientId: string,
+    type: "day" | "week" | "month"
+  ) => {
+    const ingredient = ingredients.find((i) => i.id === ingredientId);
+    if (!ingredient) return;
+
+    const currentDate = new Date(ingredient.expirationDate);
+    const newDate = new Date(currentDate);
+
+    switch (type) {
+      case "day":
+        newDate.setDate(newDate.getDate() + 1);
+        break;
+      case "week":
+        newDate.setDate(newDate.getDate() + 7);
+        break;
+      case "month":
+        newDate.setMonth(newDate.getMonth() + 1);
+        break;
+    }
+
+    handleUpdateField(
+      ingredientId,
+      "expirationDate",
+      newDate.toISOString().split("T")[0]
+    );
   };
 
   const handleSubmit = () => {
@@ -145,6 +187,31 @@ export default function ManualFormScreen() {
                   handleUpdateField(ingredient.id, "name", text)
                 }
               />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <View style={styles.inputWithIcon}>
+                <Text style={styles.inputLabel}>재료 개수</Text>
+                <View style={styles.quantityControl}>
+                  <Pressable
+                    style={styles.quantityButton}
+                    onPress={() => handleQuantityChange(ingredient.id, -1)}
+                  >
+                    <Text style={styles.quantityButtonText}>-</Text>
+                  </Pressable>
+                  <View style={styles.quantityBox}>
+                    <Text style={styles.quantityText}>
+                      {ingredient.quantity}
+                    </Text>
+                  </View>
+                  <Pressable
+                    style={styles.quantityButton}
+                    onPress={() => handleQuantityChange(ingredient.id, 1)}
+                  >
+                    <Text style={styles.quantityButtonText}>+</Text>
+                  </Pressable>
+                </View>
+              </View>
             </View>
 
             <View style={styles.inputGroup}>
@@ -216,6 +283,26 @@ export default function ManualFormScreen() {
                     {formatDate(new Date(ingredient.expirationDate))}
                   </Text>
                   <CalendarIcon width={20} height={20} color="#999999" />
+                </Pressable>
+              </View>
+              <View style={styles.durationButtons}>
+                <Pressable
+                  style={styles.durationButton}
+                  onPress={() => handleAddDuration(ingredient.id, "day")}
+                >
+                  <Text style={styles.durationButtonText}>+Day 1</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.durationButton}
+                  onPress={() => handleAddDuration(ingredient.id, "week")}
+                >
+                  <Text style={styles.durationButtonText}>+Week 1</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.durationButton}
+                  onPress={() => handleAddDuration(ingredient.id, "month")}
+                >
+                  <Text style={styles.durationButtonText}>+Month 1</Text>
                 </Pressable>
               </View>
             </View>
@@ -396,8 +483,8 @@ const styles = StyleSheet.create({
   },
   ingredientContainer: {
     backgroundColor: "#F0F0F0",
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
+    padding: 24,
     paddingTop: 36,
     marginBottom: 12,
     position: "relative",
@@ -407,7 +494,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 8,
+    borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 15,
@@ -416,7 +503,7 @@ const styles = StyleSheet.create({
   },
   inputWithIcon: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 8,
+    borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     flexDirection: "row",
@@ -435,6 +522,42 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#999999",
   },
+  quantityControl: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  quantityButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#F0F0F0",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  quantityButtonText: {
+    fontSize: 18,
+    fontWeight: "500",
+    color: "#666666",
+    lineHeight: 18,
+  },
+  quantityBox: {
+    minWidth: 40,
+    height: 28,
+    borderWidth: 1,
+    backgroundColor: "#F9F9F9",
+    borderColor: "#DDDDDD",
+    borderRadius: 6,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 8,
+  },
+  quantityText: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#111111",
+    textAlign: "center",
+  },
   datePickerButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -443,6 +566,24 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 15,
     color: "#999999",
+  },
+  durationButtons: {
+    flexDirection: "row",
+    gap: 20,
+    marginTop: 22,
+    justifyContent: "center",
+  },
+  durationButton: {
+    paddingHorizontal: 16,
+    backgroundColor: "#999999",
+    borderRadius: 30,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+  durationButtonText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#FFFFFF",
   },
   removeButton: {
     position: "absolute",
