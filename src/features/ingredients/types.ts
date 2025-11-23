@@ -14,6 +14,7 @@ export type Ingredient = {
   name: string;
   category?: IngredientCategory;
   iconId?: string;
+  quantity?: number;
   expiresAt?: string;
   addedAt?: string;
   expiresOn?: string;

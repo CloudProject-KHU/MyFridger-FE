@@ -145,7 +145,7 @@ export default function CameraSelectScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <View style={styles.container}>
+    <View style={styles.container}>
         <View style={styles.headerSection}>
           <TouchableOpacity style={styles.banner} activeOpacity={0.85} onPress={handleOpenCamera}>
             <ReceiptIcon width={40} height={40} />
@@ -287,7 +287,7 @@ export default function CameraSelectScreen() {
               </Pressable>
             </View>
           </View>
-        </View>
+    </View>
       </Modal>
     </SafeAreaView>
   );
