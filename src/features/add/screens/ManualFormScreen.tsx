@@ -231,7 +231,11 @@ export default function ManualFormScreen() {
               </Pressable>
 
               {categoryDropdownVisible[ingredient.id] && (
-                <View style={styles.categoryDropdown}>
+                <ScrollView
+                  style={styles.categoryDropdown}
+                  nestedScrollEnabled={true}
+                  showsVerticalScrollIndicator={true}
+                >
                   {categories.map((cat) => (
                     <Pressable
                       key={cat.value}
@@ -243,7 +247,7 @@ export default function ManualFormScreen() {
                       <Text style={styles.categoryText}>{cat.label}</Text>
                     </Pressable>
                   ))}
-                </View>
+                </ScrollView>
               )}
             </View>
 
@@ -614,6 +618,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 8,
     paddingVertical: 4,
+    maxHeight: 200,
   },
   categoryItem: {
     paddingVertical: 12,
