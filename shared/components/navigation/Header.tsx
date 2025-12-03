@@ -19,6 +19,7 @@ export type HeaderProps = {
   leftButton?: HeaderButtonConfig;
   rightButton?: HeaderButtonConfig;
   hideDivider?: boolean;
+  transparent?: boolean;
 };
 
 const Header: FC<HeaderProps> = ({
@@ -28,6 +29,7 @@ const Header: FC<HeaderProps> = ({
   leftButton,
   rightButton,
   hideDivider = false,
+  transparent = false,
 }) => {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
@@ -48,7 +50,7 @@ const Header: FC<HeaderProps> = ({
         styles.wrapper,
         {
           paddingTop: insets.top,
-          backgroundColor: palette.background,
+          backgroundColor: transparent ? 'transparent' : palette.background,
           borderBottomWidth: hideDivider ? 0 : StyleSheet.hairlineWidth,
         },
       ]}

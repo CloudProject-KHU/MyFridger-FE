@@ -12,6 +12,7 @@ import CalendarIcon from '@/assets/images/calandar.svg';
 import DeleteIcon from '@/assets/images/delete.svg';
 import { Ingredient } from '@features/ingredients/types';
 import { Badge } from '@shared/components/badges/Badge';
+import QuantityControl from '@/shared/components/inputs/QuantityControl';
 import { INGREDIENT_CATEGORY_LABELS } from '@shared/constants/ingredientCategories';
 import { getIngredientIconComponent } from '@/shared/utils/ingredientIcon';
 
@@ -20,6 +21,7 @@ type IngredientDetailModalProps = {
   ingredient?: Ingredient;
   onClose: () => void;
   onDelete?: (ingredient: Ingredient) => void;
+  onQuantityChange?: (ingredient: Ingredient, quantity: number) => void;
 };
 
 export default function IngredientDetailModal({
@@ -27,6 +29,7 @@ export default function IngredientDetailModal({
   ingredient,
   onClose,
   onDelete,
+  onQuantityChange,
 }: IngredientDetailModalProps) {
   if (!ingredient) {
     return null;
@@ -41,6 +44,12 @@ export default function IngredientDetailModal({
   const handleDelete = () => {
     if (ingredient && onDelete) {
       onDelete(ingredient);
+    }
+  };
+
+  const handleQuantityChange = (quantity: number) => {
+    if (ingredient && onQuantityChange) {
+      onQuantityChange(ingredient, quantity);
     }
   };
 
@@ -69,6 +78,11 @@ export default function IngredientDetailModal({
 
           <View style={styles.divider} />
 
+          <QuantityRow
+            label="재료 개수"
+            value={ingredient.quantity ?? 1}
+            onChange={handleQuantityChange}
+          />
           <DetailRow
             label="추가된 날짜"
             value={formatDate(ingredient.addedAt)}
@@ -92,6 +106,21 @@ type DetailRowProps = {
   label: string;
   value?: string;
 };
+
+type QuantityRowProps = {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+};
+
+function QuantityRow({ label, value, onChange }: QuantityRowProps) {
+  return (
+    <View style={styles.detailRow}>
+      <Text style={styles.detailLabel}>{label}</Text>
+      <QuantityControl value={value} onChange={onChange} min={1} />
+    </View>
+  );
+}
 
 function DetailRow({ label, value }: DetailRowProps) {
   return (

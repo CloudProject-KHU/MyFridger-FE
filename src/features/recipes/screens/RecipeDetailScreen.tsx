@@ -1,16 +1,18 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import {
-    Modal,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    useWindowDimensions,
-    View
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import DislikeIcon from '@/assets/images/dislike.svg';
+import LikeIcon from '@/assets/images/like.svg';
 import SquareCheckIcon from '@/assets/images/square-check.svg';
 import ActionButton from '@/shared/components/buttons/ActionButton';
 import QuantityControl from '@/shared/components/inputs/QuantityControl';
@@ -18,17 +20,11 @@ import Header from '@/shared/components/navigation/Header';
 import { getIngredientIconComponent } from '@/shared/utils/ingredientIcon';
 import type { Ingredient } from '@features/ingredients/types';
 
-type RecipeIngredient = {
+type RecipeItem = {
   id: string;
   name: string;
   iconId?: string;
-  category?: string;
-};
-
-type RecipeSeasoning = {
-  id: string;
-  name: string;
-  iconId?: string;
+  category: string;
 };
 
 type RecipeStep = {
@@ -39,10 +35,8 @@ type RecipeStep = {
 type RecipeDetail = {
   id: string;
   title: string;
-  description: string;
   imageUri?: string;
-  ingredients: RecipeIngredient[];
-  seasonings: RecipeSeasoning[];
+  items: RecipeItem[];
   steps: RecipeStep[];
 };
 
@@ -51,14 +45,11 @@ const SAMPLE_RECIPE_DETAILS: Record<string, RecipeDetail> = {
   '1': {
     id: '1',
     title: '김치죽',
-    description: '속을 든든하게 하는 간단한 김치죽!',
-    ingredients: [
+    items: [
       { id: 'kimchi', name: '김치', iconId: 'kimchi', category: 'vegetable' },
-    ],
-    seasonings: [
-      { id: 'garlic', name: '다진마늘', iconId: 'garlic' },
-      { id: 'soy_sauce', name: '간장', iconId: 'soy_sauce' },
-      { id: 'sesame_oil', name: '참기름', iconId: 'sesame_oil' },
+      { id: 'garlic', name: '다진마늘', iconId: 'garlic', category: 'seasoning' },
+      { id: 'soy_sauce', name: '간장', iconId: 'soy_sauce', category: 'seasoning' },
+      { id: 'sesame_oil', name: '참기름', iconId: 'sesame_oil', category: 'seasoning' },
     ],
     steps: [
       {
@@ -78,14 +69,11 @@ const SAMPLE_RECIPE_DETAILS: Record<string, RecipeDetail> = {
   '2': {
     id: '2',
     title: '참치간장계란밥',
-    description: '식사 거르지 않는 초간단 식사!',
-    ingredients: [
+    items: [
       { id: 'tuna', name: '참치', iconId: 'fish', category: 'seafood' },
       { id: 'egg', name: '계란', iconId: 'egg', category: 'dairy_processed' },
-    ],
-    seasonings: [
-      { id: 'soy_sauce', name: '간장', iconId: 'soy_sauce' },
-      { id: 'sesame_oil', name: '참기름', iconId: 'sesame_oil' },
+      { id: 'soy_sauce', name: '간장', iconId: 'soy_sauce', category: 'seasoning' },
+      { id: 'sesame_oil', name: '참기름', iconId: 'sesame_oil', category: 'seasoning' },
     ],
     steps: [
       {
@@ -105,14 +93,11 @@ const SAMPLE_RECIPE_DETAILS: Record<string, RecipeDetail> = {
   '3': {
     id: '3',
     title: '간장두부덮밥',
-    description: '간장 베이스의 두부덮밥!',
-    ingredients: [
+    items: [
       { id: 'tofu', name: '두부', iconId: 'tofu', category: 'dairy_processed' },
-    ],
-    seasonings: [
-      { id: 'soy_sauce', name: '간장', iconId: 'soy_sauce' },
-      { id: 'garlic', name: '다진마늘', iconId: 'garlic' },
-      { id: 'sesame_oil', name: '참기름', iconId: 'sesame_oil' },
+      { id: 'soy_sauce', name: '간장', iconId: 'soy_sauce', category: 'seasoning' },
+      { id: 'garlic', name: '다진마늘', iconId: 'garlic', category: 'seasoning' },
+      { id: 'sesame_oil', name: '참기름', iconId: 'sesame_oil', category: 'seasoning' },
     ],
     steps: [
       {
@@ -132,14 +117,11 @@ const SAMPLE_RECIPE_DETAILS: Record<string, RecipeDetail> = {
   '4': {
     id: '4',
     title: '돼지고기 고추장찌개',
-    description: '간편하게 만들 수 있는 고추장찌개!',
-    ingredients: [
+    items: [
       { id: 'pork', name: '돼지고기', iconId: 'pork', category: 'meat' },
-    ],
-    seasonings: [
-      { id: 'ketchup', name: '고추장', iconId: 'ketchup' },
-      { id: 'garlic', name: '다진마늘', iconId: 'garlic' },
-      { id: 'soy_sauce', name: '간장', iconId: 'soy_sauce' },
+      { id: 'ketchup', name: '고추장', iconId: 'ketchup', category: 'seasoning' },
+      { id: 'garlic', name: '다진마늘', iconId: 'garlic', category: 'seasoning' },
+      { id: 'soy_sauce', name: '간장', iconId: 'soy_sauce', category: 'seasoning' },
     ],
     steps: [
       {
@@ -159,10 +141,8 @@ const SAMPLE_RECIPE_DETAILS: Record<string, RecipeDetail> = {
   '5': {
     id: '5',
     title: '된장라면',
-    description: '구수함의 깊이가 다른 맛!',
-    ingredients: [],
-    seasonings: [
-      { id: 'soy_sauce', name: '된장', iconId: 'soy_sauce' },
+    items: [
+      { id: 'soy_sauce', name: '된장', iconId: 'soy_sauce', category: 'seasoning' },
     ],
     steps: [
       {
@@ -209,22 +189,25 @@ export default function RecipeDetailScreen() {
   const { width: screenWidth } = useWindowDimensions();
   const recipe = SAMPLE_RECIPE_DETAILS[id || '1'];
   const [modalVisible, setModalVisible] = useState(false);
+  const [userFeedback, setUserFeedback] = useState<'like' | 'dislike' | null>(null);
 
-  // 재료 차감 아이템 초기화
+  // 재료 차감 아이템 초기화 (식재료만, 조미료 제외)
   const initialDeductionItems = useMemo<DeductionItem[]>(() => {
-    return recipe.ingredients.map((ing) => {
-      const fridgeData = SAMPLE_FRIDGE_INGREDIENTS[ing.id] || { stock: 0 };
-      return {
-        id: ing.id,
-        name: ing.name,
-        iconId: ing.iconId,
-        category: ing.category,
-        stock: fridgeData.stock,
-        used: 1,
-        selected: true,
-      };
-    });
-  }, [recipe.ingredients]);
+    return recipe.items
+      .filter((item) => item.category !== 'seasoning')
+      .map((ing) => {
+        const fridgeData = SAMPLE_FRIDGE_INGREDIENTS[ing.id] || { stock: 0 };
+        return {
+          id: ing.id,
+          name: ing.name,
+          iconId: ing.iconId,
+          category: ing.category,
+          stock: fridgeData.stock,
+          used: 1,
+          selected: true,
+        };
+      });
+  }, [recipe.items]);
 
   const [deductionItems, setDeductionItems] = useState<DeductionItem[]>(initialDeductionItems);
 
@@ -279,55 +262,95 @@ export default function RecipeDetailScreen() {
   );
   const canDeduct = selectedCount > 0 && !hasInsufficient;
 
-  // 조미료 아이템 너비 계산 (3개씩 정렬, 양옆 패딩 16, 아이템 간격 16)
-  const seasoningItemWidth = (screenWidth - 16 * 2 - 16 * 2) / 3;
+  // 조미료/식재료 아이템 너비 계산 (4개씩 정렬, 양옆 패딩 16, 아이템 간격 20)
+  const itemWidth = (screenWidth - 16 * 2 - 20 * 3) / 4;
 
-  const renderIngredientIcon = (ingredient: RecipeIngredient) => {
+  // 카테고리로 필터링
+  const ingredients = recipe.items.filter((item) => item.category !== 'seasoning');
+  const seasonings = recipe.items.filter((item) => item.category === 'seasoning');
+
+  const renderItemIcon = (item: RecipeItem) => {
     const IconComponent = getIngredientIconComponent({
-      iconId: ingredient.iconId,
-      category: ingredient.category,
+      iconId: item.iconId,
+      category: item.category,
     } as Ingredient);
     return IconComponent ? <IconComponent width={40} height={40} /> : null;
   };
 
-  const renderSeasoningIcon = (seasoning: RecipeSeasoning) => {
-    const IconComponent = getIngredientIconComponent({
-      iconId: seasoning.iconId,
-    } as Ingredient);
-    return IconComponent ? <IconComponent width={40} height={40} /> : null;
+  const toggleLike = () => {
+    if (userFeedback === 'like') {
+      setUserFeedback(null);
+    } else {
+      setUserFeedback('like');
+    }
+  };
+
+  const toggleDislike = () => {
+    if (userFeedback === 'dislike') {
+      setUserFeedback(null);
+    } else {
+      setUserFeedback('dislike');
+    }
   };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <Header title="" showBackButton onBackPress={handleBackPress} hideDivider />
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* 이미지 섹션 */}
-        <View style={styles.imageSection}>
-          <View style={styles.imagePlaceholder}>
-            <Text style={styles.imagePlaceholderText}>🍲</Text>
-          </View>
+      <View style={styles.imageSection}>
+        <View style={styles.headerOverlay}>
+          <Header
+            title=""
+            showBackButton
+            onBackPress={handleBackPress}
+            hideDivider
+            transparent
+          />
         </View>
+        <View style={styles.imagePlaceholder}>
+          <Text style={styles.imagePlaceholderText}>🍲</Text>
+        </View>
+      </View>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
 
         {/* 레시피 정보 섹션 */}
         <View style={styles.infoSection}>
           <View style={styles.titleRow}>
-            <View style={styles.titleContainer}>
-              <Text style={styles.title}>{recipe.title}</Text>
-              <Text style={styles.description}>{recipe.description}</Text>
+            <Text style={styles.title}>{recipe.title}</Text>
+            <View style={styles.feedbackButtons}>
+              <Pressable
+                onPress={toggleLike}
+                style={[
+                  styles.feedbackButton,
+                  userFeedback === 'like' && styles.feedbackButtonActiveLike,
+                ]}
+              >
+                <LikeIcon width={24} height={24} color={userFeedback === 'like' ? '#2196F3' : '#000'} />
+              </Pressable>
+              <Pressable
+                onPress={toggleDislike}
+                style={[
+                  styles.feedbackButton,
+                  userFeedback === 'dislike' && styles.feedbackButtonActiveDislike,
+                ]}
+              >
+                <DislikeIcon width={24} height={24} color={userFeedback === 'dislike' ? '#F44336' : '#000'} />
+              </Pressable>
             </View>
-            {/* 북마크 아이콘 (나중에 추가) */}
-            <View style={styles.bookmarkPlaceholder} />
           </View>
 
           {/* 식재료 섹션 */}
-          {recipe.ingredients.length > 0 && (
+          {ingredients.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>식재료</Text>
-              <View style={styles.ingredientList}>
-                {recipe.ingredients.map((ingredient) => (
-                  <View key={ingredient.id} style={styles.ingredientItem}>
-                    {renderIngredientIcon(ingredient)}
-                    <Text style={styles.ingredientName}>{ingredient.name}</Text>
+              <View style={styles.seasoningGrid}>
+                {ingredients.map((item) => (
+                  <View
+                    key={item.id}
+                    style={[styles.seasoningItem, { width: itemWidth }]}
+                  >
+                    <View style={styles.seasoningIconContainer}>
+                      {renderItemIcon(item)}
+                    </View>
+                    <Text style={styles.seasoningName}>{item.name}</Text>
                   </View>
                 ))}
               </View>
@@ -335,17 +358,19 @@ export default function RecipeDetailScreen() {
           )}
 
           {/* 조미료 섹션 */}
-          {recipe.seasonings.length > 0 && (
+          {seasonings.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>조미료</Text>
               <View style={styles.seasoningGrid}>
-                {recipe.seasonings.map((seasoning) => (
+                {seasonings.map((item) => (
                   <View
-                    key={seasoning.id}
-                    style={[styles.seasoningItem, { width: seasoningItemWidth }]}
+                    key={item.id}
+                    style={[styles.seasoningItem, { width: itemWidth }]}
                   >
-                    {renderSeasoningIcon(seasoning)}
-                    <Text style={styles.seasoningName}>{seasoning.name}</Text>
+                    <View style={styles.seasoningIconContainer}>
+                      {renderItemIcon(item)}
+                    </View>
+                    <Text style={styles.seasoningName}>{item.name}</Text>
                   </View>
                 ))}
               </View>
@@ -353,14 +378,12 @@ export default function RecipeDetailScreen() {
           )}
 
           {/* 레시피 섹션 */}
-          <View style={styles.section}>
+          <View style={styles.recipeStepsSection}>
             <Text style={styles.sectionTitle}>레시피</Text>
             <View style={styles.stepsList}>
               {recipe.steps.map((step) => (
                 <View key={step.number} style={styles.stepItem}>
-                  <View style={styles.stepNumber}>
-                    <Text style={styles.stepNumberText}>{step.number}</Text>
-                  </View>
+                  <Text style={styles.stepNumber}>{step.number}</Text>
                   <Text style={styles.stepDescription}>{step.description}</Text>
                 </View>
               ))}
@@ -370,7 +393,7 @@ export default function RecipeDetailScreen() {
       </ScrollView>
       <View style={styles.buttonContainer}>
         <ActionButton
-          label="레시피를 만들어먹었어요!"
+          label="레시피 만들어먹었어요!"
           onPress={handleCompletePress}
           tone="primary"
         />
@@ -467,7 +490,7 @@ export default function RecipeDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F5F5F5',
   },
   scrollView: {
     flex: 1,
@@ -475,7 +498,16 @@ const styles = StyleSheet.create({
   imageSection: {
     width: '100%',
     height: 300,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FF6B35',
+    position: 'relative',
+  },
+  headerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+    backgroundColor: 'transparent',
   },
   imagePlaceholder: {
     width: '100%',
@@ -487,101 +519,122 @@ const styles = StyleSheet.create({
     fontSize: 80,
   },
   infoSection: {
-    padding: 16,
-    paddingBottom: 24,
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    marginTop: -24,
+    padding: 24,
+    paddingBottom: 32,
   },
   buttonContainer: {
-    padding: 16,
-    paddingTop: 10,
-    paddingBottom: 10, // 탭바 높이 고려
-    backgroundColor: '#fff',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(0,0,0,0.05)',
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
   },
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 24,
-  },
-  titleContainer: {
-    flex: 1,
+    alignItems: 'center',
+    marginBottom: 32,
+    marginTop: 20,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111111',
-    marginBottom: 8,
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    flex: 1,
+  },
+  feedbackButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  feedbackButton: {
+    width: 44,
+    height: 44,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  feedbackButtonActiveLike: {
+    backgroundColor: '#E3F2FD',
+    shadowColor: '#2196F3',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  feedbackButtonActiveDislike: {
+    backgroundColor: '#FFEBEE',
+    shadowColor: '#F44336',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   description: {
-    fontSize: 16,
-    color: '#6B7280',
-    lineHeight: 24,
-  },
-  bookmarkPlaceholder: {
-    width: 24,
-    height: 24,
+    fontSize: 15,
+    color: '#999',
+    marginBottom: 32,
   },
   section: {
     marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111111',
-    marginBottom: 16,
-  },
-  ingredientList: {
-    gap: 12,
-  },
-  ingredientItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  ingredientName: {
     fontSize: 16,
-    color: '#111111',
+    color: '#999',
+    marginBottom: 20,
+    fontWeight: '500',
   },
   seasoningGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 16,
+    gap: 20,
+    marginBottom: 32,
   },
   seasoningItem: {
     alignItems: 'center',
     gap: 8,
   },
-  seasoningName: {
-    fontSize: 14,
-    color: '#111111',
-    textAlign: 'center',
-  },
-  stepsList: {
-    gap: 16,
-  },
-  stepItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-  },
-  stepNumber: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#FF8A65',
+  seasoningIconContainer: {
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepNumberText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
+  seasoningName: {
+    fontSize: 13,
+    color: '#333',
+    textAlign: 'center',
+  },
+  recipeStepsSection: {
+    marginBottom: 80,
+  },
+  stepsList: {
+    gap: 0,
+  },
+  stepItem: {
+    flexDirection: 'row',
+    gap: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  stepNumber: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FF9A56',
+    minWidth: 24,
   },
   stepDescription: {
     flex: 1,
-    fontSize: 16,
-    color: '#111111',
+    fontSize: 15,
+    color: '#666',
     lineHeight: 24,
   },
   // 모달 스타일
