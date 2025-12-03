@@ -1,7 +1,7 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
@@ -16,7 +16,8 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
+  // 앱 최초 실행 시 로그인 플로우부터 시작
+  initialRouteName: 'auth',
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -51,6 +52,13 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const router = useRouter();
+
+  // TODO: 나중에 실제 로그인 상태(토큰 등)를 확인해서 분기하도록 변경
+  // 지금은 앱 시작 시 항상 로그인 화면으로 이동
+  useEffect(() => {
+    router.replace('/auth/login');
+  }, [router]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -60,6 +68,7 @@ function RootLayoutNav() {
         <Stack.Screen name="ingredients" options={{ headerShown: false }} />
         <Stack.Screen name="recipes" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="auth" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
