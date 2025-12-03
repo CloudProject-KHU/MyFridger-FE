@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import React from 'react';
-import { FlatList, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Alert, FlatList, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import DeleteIcon from '@/assets/images/delete.svg';
@@ -11,99 +12,11 @@ import { INGREDIENT_CATEGORY_OPTIONS } from '@/shared/constants/ingredientCatego
 import IngredientCard from '@features/ingredients/components/IngredientCard';
 import IngredientDetailModal from '@features/ingredients/components/IngredientDetailModal';
 import { Ingredient } from '@features/ingredients/types';
-
-const SAMPLE_INGREDIENTS: Ingredient[] = [
-  {
-    id: '1',
-    name: '간장',
-    category: 'seasoning',
-    iconId: 'soy_sauce',
-    expiresAt: 'D-17',
-    addedAt: '2025-10-10',
-    expiresOn: '2026-04-10',
-  },
-  {
-    id: '2',
-    name: '양파',
-    category: 'vegetable',
-    iconId: 'onion',
-    expiresAt: 'D-13',
-    addedAt: '2025-10-12',
-    expiresOn: '2025-11-01',
-  },
-  {
-    id: '3',
-    name: '우유',
-    category: 'dairy_processed',
-    iconId: 'milk',
-    expiresAt: 'D-7',
-    addedAt: '2025-10-20',
-    expiresOn: '2025-10-27',
-  },
-  {
-    id: '4',
-    name: '상추',
-    category: 'vegetable',
-    iconId: 'lettuce',
-    expiresAt: 'D-6',
-    addedAt: '2025-10-22',
-    expiresOn: '2025-10-28',
-  },
-  {
-    id: '5',
-    name: '돼지고기',
-    category: 'meat',
-    iconId: 'pork',
-    expiresAt: 'D-4',
-    addedAt: '2025-10-21',
-    expiresOn: '2025-10-25',
-  },
-  {
-    id: '6',
-    name: '새우',
-    category: 'seafood',
-    iconId: 'shrimp',
-    expiresAt: 'D-2',
-    addedAt: '2025-10-24',
-    expiresOn: '2025-10-27',
-  },
-  {
-    id: '7',
-    name: '치즈',
-    category: 'dairy_processed',
-    iconId: 'cheese',
-    expiresAt: 'D-1',
-    addedAt: '2025-10-23',
-    expiresOn: '2025-10-26',
-  },
-  {
-    id: '8',
-    name: '진미채 볶음',
-    category: 'homemade',
-    iconId: 'homemade',
-    expiresAt: 'D-12',
-    addedAt: '2025-10-29',
-    expiresOn: '2025-11-11',
-  },
-  {
-    id: '9',
-    name: '사과',
-    category: 'fruit',
-    iconId: 'apple',
-    expiresAt: 'D-10',
-    addedAt: '2025-10-05',
-    expiresOn: '2025-11-05',
-  },
-  {
-    id: '10',
-    name: '장조림',
-    category: 'homemade',
-    iconId: 'homemade',
-    expiresAt: 'D-30',
-    addedAt: '2025-10-29',
-    expiresOn: '2025-11-29',
-  },
-];
+import {
+  fetchIngredients,
+  fetchIngredientById,
+  deleteIngredientById,
+} from '@features/ingredients/services/ingredients.api';
 
 const CARD_COLUMNS = 2;
 const CARD_GAP = 12;
@@ -114,38 +27,77 @@ const keyExtractor = (item: Ingredient) => item.id;
 export default function IngredientListScreen() {
   const { width: screenWidth } = useWindowDimensions();
   const router = useRouter();
+  const [ingredients, setIngredients] = React.useState<Ingredient[]>([]);
   const [activeCategory, setActiveCategory] = React.useState(
     INGREDIENT_CATEGORY_OPTIONS[0].value,
   );
   const [selectedIngredient, setSelectedIngredient] = React.useState<Ingredient | null>(null);
   const [isDetailVisible, setDetailVisible] = React.useState(false);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true;
+      (async () => {
+        try {
+          const list = await fetchIngredients();
+          if (isActive) {
+            setIngredients(list);
+          }
+        } catch (error) {
+          console.error('재료 목록 불러오기 실패:', error);
+        }
+      })();
+
+      return () => {
+        isActive = false;
+      };
+    }, []),
+  );
+
   const filteredIngredients = React.useMemo(() => {
-    const filtered =
+    const source =
       activeCategory === 'all'
-        ? SAMPLE_INGREDIENTS
-        : SAMPLE_INGREDIENTS.filter((ingredient) => ingredient.category === activeCategory);
+        ? ingredients
+        : ingredients.filter((ingredient) => ingredient.category === activeCategory);
 
     const parseExpiry = (expiresAt?: string) => {
       if (!expiresAt) return Number.POSITIVE_INFINITY;
-      const match = /^D([+-]?)(\d+)$/.exec(expiresAt.trim());
-      if (!match) return Number.POSITIVE_INFINITY;
-      const sign = match[1];
-      const value = Number(match[2]);
-      // D-5 -> { sign: '', value: 5 } => 5 days left, but we sort ascending so use positive
-      // D+2 -> expired 2 days ago => return -2 to keep at top
-      if (sign === '+') {
-        return -value; // expired -> highest priority
+      const trimmed = expiresAt.trim();
+
+      // D± 패턴인 경우 그대로 처리
+      const ddayMatch = /^D([+-]?)(\d+)$/.exec(trimmed);
+      if (ddayMatch) {
+        const sign = ddayMatch[1];
+        const value = Number(ddayMatch[2]);
+        if (sign === '+') {
+          return -value; // 이미 지난 것 우선
+        }
+        return value; // 남은 일수
       }
-      const remaining = value;
-      return remaining;
+
+      // 날짜 문자열인 경우 D-day 계산
+      const targetDate = new Date(trimmed);
+      if (Number.isNaN(targetDate.getTime())) {
+        return Number.POSITIVE_INFINITY;
+      }
+      const now = new Date();
+      const msPerDay = 1000 * 60 * 60 * 24;
+      const diff = Math.ceil((targetDate.getTime() - now.getTime()) / msPerDay);
+      return diff;
     };
 
-    return [...filtered].sort((a, b) => parseExpiry(a.expiresAt) - parseExpiry(b.expiresAt));
-  }, [activeCategory]);
+    return [...source].sort((a, b) => parseExpiry(a.expiresAt) - parseExpiry(b.expiresAt));
+  }, [activeCategory, ingredients]);
 
-  const handleSelectIngredient = (ingredient: Ingredient) => {
-    setSelectedIngredient(ingredient);
+  const handleSelectIngredient = async (ingredient: Ingredient) => {
+    try {
+      // 서버에서 최신 데이터 다시 가져오기
+      const fresh = await fetchIngredientById(ingredient.id);
+      setSelectedIngredient(fresh);
+    } catch (error) {
+      console.error('재료 상세 불러오기 실패, 기존 데이터 사용:', error);
+      setSelectedIngredient(ingredient);
+    }
     setDetailVisible(true);
   };
 
@@ -178,6 +130,27 @@ export default function IngredientListScreen() {
   const handleNavigateToSettings = React.useCallback(() => {
     router.push('/settings');
   }, [router]);
+
+  const handleDeleteIngredient = async (ingredient: Ingredient) => {
+    Alert.alert('삭제하기', `'${ingredient.name}' 재료를 삭제할까요?`, [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteIngredientById(ingredient.id);
+            setIngredients((prev) => prev.filter((item) => item.id !== ingredient.id));
+            setDetailVisible(false);
+            setSelectedIngredient(null);
+          } catch (error) {
+            console.error('재료 삭제 실패:', error);
+            Alert.alert('삭제 실패', '재료 삭제 중 문제가 발생했습니다. 다시 시도해주세요.');
+          }
+        },
+      },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
@@ -212,10 +185,12 @@ export default function IngredientListScreen() {
           setDetailVisible(false);
           setSelectedIngredient(null);
         }}
-        onDelete={() => {
-          // TODO: connect delete handler
-          setDetailVisible(false);
-          setSelectedIngredient(null);
+        onDelete={handleDeleteIngredient}
+        onUpdated={(updated) => {
+          setIngredients((prev) =>
+            prev.map((item) => (item.id === updated.id ? updated : item)),
+          );
+          setSelectedIngredient(updated);
         }}
       />
     </SafeAreaView>

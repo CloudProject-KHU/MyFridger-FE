@@ -1,5 +1,7 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import {
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,9 +14,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import ArrowIcon from "@/assets/images/^.svg";
 import CloseIcon from "@/assets/images/close.svg";
 import CalendarIcon from "@/assets/images/Frame.svg";
+import { createMaterialManual } from "@features/ingredients/services/ingredients.api";
 import ActionButton from "@shared/components/buttons/ActionButton";
 import DatePickerModal from "@shared/components/calendar/DatePickerModal";
-import { INGREDIENT_CATEGORY_OPTIONS } from "@shared/constants/ingredientCategories";
+import {
+  INGREDIENT_CATEGORY_LABELS,
+  INGREDIENT_CATEGORY_OPTIONS,
+} from "@shared/constants/ingredientCategories";
 import { formatDate } from "@shared/utils/dateFormat";
 
 type IngredientFormData = {
@@ -29,6 +35,8 @@ type IngredientFormData = {
 export default function ManualFormScreen() {
   const today = new Date().toISOString().split("T")[0];
   const formattedToday = formatDate(new Date());
+
+  const router = useRouter();
 
   const [ingredients, setIngredients] = React.useState<IngredientFormData[]>([
     {
@@ -84,8 +92,8 @@ export default function ManualFormScreen() {
     );
   };
 
-  const handleSelectCategory = (ingredientId: string, category: string) => {
-    handleUpdateField(ingredientId, "category", category);
+  const handleSelectCategory = (ingredientId: string, categoryValue: string) => {
+    handleUpdateField(ingredientId, "category", categoryValue);
     setCategoryDropdownVisible((prev) => ({ ...prev, [ingredientId]: false }));
   };
 
@@ -139,8 +147,58 @@ export default function ManualFormScreen() {
     );
   };
 
-  const handleSubmit = () => {
-    console.log("Submit ingredients:", ingredients);
+  const handleSubmit = async () => {
+    try {
+      // 여러 재료를 각각 /materials/manual 로 전송
+      const results = await Promise.all(
+        ingredients.map((item) =>
+          createMaterialManual({
+            name: item.name,
+            category: item.category || undefined,
+            // 백엔드 스키마는 ISO 문자열을 기대하므로 Date 객체로 변환 후 toISOString 사용
+            purchased_at: new Date(item.addedDate).toISOString(),
+            expired_at: new Date(item.expirationDate).toISOString(),
+            quantity: item.quantity,
+            // 현재 UI에 가격/통화 입력이 없어서 기본값으로 전송
+            price: 0,
+            currency: "KRW",
+            // TODO: 실제 로그인 연동 시, 현재 로그인한 사용자의 id(string)로 교체
+            user_id: "1",
+            quantity_unit: "개",
+          })
+        )
+      );
+
+      console.log("Created materials:", results);
+
+      // 폼 초기화
+      setIngredients([
+        {
+          id: "1",
+          name: "",
+          quantity: 1,
+          category: "",
+          addedDate: today,
+          expirationDate: today,
+        },
+      ]);
+
+      // 홈탭으로 이동 (재료 리스트 탭이 index 라고 가정)
+      Alert.alert("등록 완료", "재료가 성공적으로 등록되었습니다.", [
+        {
+          text: "OK",
+          onPress: () => {
+            router.push("/(tabs)");
+          },
+        },
+      ]);
+    } catch (error: any) {
+      console.error("직접 입력 등록 실패:", error);
+      Alert.alert(
+        "등록 실패",
+        error?.message || "재료 등록 중 문제가 발생했습니다. 다시 시도해주세요."
+      );
+    }
   };
 
   const ingredientCount = ingredients.length;
@@ -224,7 +282,9 @@ export default function ManualFormScreen() {
                     !ingredient.category && styles.placeholderText,
                   ]}
                 >
-                  {ingredient.category || "카테고리"}
+                  {ingredient.category
+                    ? INGREDIENT_CATEGORY_LABELS[ingredient.category] ?? ingredient.category
+                    : "카테고리"}
                 </Text>
                 <ArrowIcon width={16} height={16} color="#999999" />
               </Pressable>
@@ -240,7 +300,7 @@ export default function ManualFormScreen() {
                       key={cat.value}
                       style={styles.categoryItem}
                       onPress={() =>
-                        handleSelectCategory(ingredient.id, cat.label)
+                        handleSelectCategory(ingredient.id, cat.value)
                       }
                     >
                       <Text style={styles.categoryText}>{cat.label}</Text>

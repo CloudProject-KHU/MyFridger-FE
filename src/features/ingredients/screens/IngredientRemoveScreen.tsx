@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { INGREDIENT_CATEGORY_OPTIONS } from '@/shared/constants/ingredientCategories';
@@ -9,28 +9,31 @@ import { Ingredient } from '@features/ingredients/types';
 import ActionButton from '@shared/components/buttons/ActionButton';
 import Header from '@shared/components/navigation/Header';
 import TagTabs from '@shared/components/tabs/TagTabs';
-
-const SAMPLE_INGREDIENTS: Ingredient[] = [
-  { id: '1', name: '간장', category: 'seasoning', iconId: 'soy_sauce', expiresAt: 'D-17' },
-  { id: '2', name: '양파', category: 'vegetable', iconId: 'onion', expiresAt: 'D-13' },
-  { id: '3', name: '우유', category: 'dairy_processed', iconId: 'milk', expiresAt: 'D-7' },
-  { id: '4', name: '상추', category: 'vegetable', iconId: 'lettuce', expiresAt: 'D-6' },
-  { id: '5', name: '돼지고기', category: 'meat', iconId: 'pork', expiresAt: 'D-4' },
-  { id: '6', name: '새우', category: 'seafood', iconId: 'shrimp', expiresAt: 'D-2' },
-  { id: '7', name: '치즈', category: 'dairy_processed', iconId: 'cheese', expiresAt: 'D-1' },
-  { id: '8', name: '진미채 볶음', category: 'homemade', iconId: 'homemade', expiresAt: 'D-8' },
-  { id: '9', name: '장조림', category: 'homemade', iconId: 'homemade', expiresAt: 'D-9' },
-  { id: '10', name: '사과', category: 'fruit', iconId: 'apple', expiresAt: 'D-10' },
-];
+import {
+  fetchIngredients,
+  bulkDeleteIngredients,
+} from '@features/ingredients/services/ingredients.api';
 
 const keyExtractor = (item: Ingredient) => item.id;
 
 export default function IngredientRemoveScreen() {
   const router = useRouter();
+  const [ingredients, setIngredients] = React.useState<Ingredient[]>([]);
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [activeCategory, setActiveCategory] = React.useState(
     INGREDIENT_CATEGORY_OPTIONS[0].value,
   );
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const list = await fetchIngredients();
+        setIngredients(list);
+      } catch (error) {
+        console.error('재료 목록 불러오기 실패(삭제 화면):', error);
+      }
+    })();
+  }, []);
 
   const toggleSelect = React.useCallback((ingredient: Ingredient) => {
     setSelectedIds((prev) => {
@@ -43,15 +46,37 @@ export default function IngredientRemoveScreen() {
 
   const filteredIngredients = React.useMemo(() => {
     if (activeCategory === 'all') {
-      return SAMPLE_INGREDIENTS;
+      return ingredients;
     }
-    return SAMPLE_INGREDIENTS.filter((ingredient) => ingredient.category === activeCategory);
-  }, [activeCategory]);
+    return ingredients.filter((ingredient) => ingredient.category === activeCategory);
+  }, [activeCategory, ingredients]);
 
   const handleDelete = React.useCallback(() => {
-    // TODO: connect with ingredients state/services to remove selected ingredients.
-    // For now, this is a placeholder handler.
-  }, []);
+    if (selectedIds.length === 0) return;
+
+    const targets = ingredients.filter((item) => selectedIds.includes(item.id));
+    Alert.alert(
+      '재료 삭제',
+      `${targets.length}개의 재료를 삭제할까요?`,
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await bulkDeleteIngredients(targets.map((item) => item.id));
+              setIngredients((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
+              setSelectedIds([]);
+            } catch (error) {
+              console.error('재료 일괄 삭제 실패:', error);
+              Alert.alert('삭제 실패', '재료 삭제 중 문제가 발생했습니다. 다시 시도해주세요.');
+            }
+          },
+        },
+      ],
+    );
+  }, [ingredients, selectedIds]);
 
   const renderItem = React.useCallback(
     ({ item }: { item: Ingredient }) => (
