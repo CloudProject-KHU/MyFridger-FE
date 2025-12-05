@@ -1,17 +1,17 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { Alert, FlatList, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 
 import IngredientSelectableCard from '@features/add/components/IngredientSelectableCard';
+import { createMaterialManual, fetchIngredients } from '@features/ingredients/services/ingredients.api';
 import { Ingredient } from '@features/ingredients/types';
-import { createMaterialManual } from '@features/ingredients/services/ingredients.api';
-import { fetchIngredients } from '@features/ingredients/services/ingredients.api';
 import ActionButton from '@shared/components/buttons/ActionButton';
 import SearchBar from '@shared/components/inputs/SearchBar';
 import TagTabs from '@shared/components/tabs/TagTabs';
 import {
   INGREDIENT_CATEGORY_OPTIONS,
+  getExpiryDaysByIngredientName,
 } from '@shared/constants/ingredientCategories';
 import { INGREDIENT_ICON_CATEGORIES } from '@shared/constants/ingredientIcons';
 
@@ -159,21 +159,31 @@ export default function SearchAddScreen() {
             );
 
             // 선택한 재료들을 서버에 추가
-            const today = new Date().toISOString();
+            const today = new Date();
+            const todayISO = today.toISOString();
+            
             const results = await Promise.all(
-              selectedIngredients.map((ingredient) =>
-                createMaterialManual({
+              selectedIngredients.map((ingredient) => {
+                // 재료 이름으로 유통기한 일수 찾기
+                const expiryDays = getExpiryDaysByIngredientName(ingredient.name);
+                
+                // 유통기한 계산: 오늘 날짜 + 유통기한 일수
+                const expiredAt = expiryDays
+                  ? new Date(today.getTime() + expiryDays * 24 * 60 * 60 * 1000).toISOString()
+                  : todayISO; // 매핑이 없으면 오늘 날짜 (집밥, 기타 등)
+
+                return createMaterialManual({
                   name: ingredient.name,
                   category: ingredient.category || undefined,
-                  purchased_at: today,
-                  expired_at: today, // 기본값, 나중에 수정 가능
+                  purchased_at: todayISO,
+                  expired_at: expiredAt,
                   quantity: 1,
                   price: 0,
                   currency: 'KRW',
                   user_id: '1', // TODO: 실제 로그인한 사용자 ID로 교체
                   quantity_unit: '개',
-                }),
-              ),
+                });
+              }),
             );
 
             console.log('재료 추가 완료:', results);
