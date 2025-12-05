@@ -10,7 +10,7 @@ type BadgeProps = {
 
 const COLORS: Record<BadgeVariant, { background: string; text: string }> = {
   fresh: {
-    background: '#5CD27A', // 초록: 8일 이상
+    background: '#61BC39', // 초록: 8일 이상
     text: '#FFFFFF',
   },
   medium: {

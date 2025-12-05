@@ -435,7 +435,7 @@ export default function RecipeDetailScreen() {
                         style={styles.modalCheckboxContainer}
                       >
                         {item.selected ? (
-                          <SquareCheckIcon width={20} height={20} color="#5B7FFF" />
+                          <SquareCheckIcon width={20} height={20} color="#FFAE2C" />
                         ) : (
                           <View style={styles.modalCheckboxUnchecked} />
                         )}
@@ -736,7 +736,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 14,
     backgroundColor: '#F5F5F5',
-    borderRadius: 12,
+    borderRadius: 999,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -748,8 +748,8 @@ const styles = StyleSheet.create({
   modalBtnConfirm: {
     flex: 1,
     padding: 14,
-    backgroundColor: '#5B7FFF',
-    borderRadius: 12,
+    backgroundColor: '#FFAE2C',
+    borderRadius: 999,
     justifyContent: 'center',
     alignItems: 'center',
   },
