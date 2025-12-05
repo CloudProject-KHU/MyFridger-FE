@@ -34,7 +34,7 @@ const HORIZONTAL_PADDING = 16;
 
 const keyExtractor = (item: Ingredient) => item.id;
 
-export default function SelectIngredientScreen() {
+export default function SearchAddScreen() {
   const { width: screenWidth } = useWindowDimensions();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [activeCategory, setActiveCategory] = React.useState(INGREDIENT_CATEGORY_OPTIONS[0].value);

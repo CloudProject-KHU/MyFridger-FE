@@ -1,15 +1,15 @@
 import React from 'react';
 import {
-  Alert,
-  FlatList,
-  ImageBackground,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
+    Alert,
+    FlatList,
+    ImageBackground,
+    Modal,
+    Pressable,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -28,7 +28,7 @@ const HORIZONTAL_PADDING = 16;
 
 const keyExtractor = (item: Ingredient) => item.id;
 
-export default function CameraSelectScreen() {
+export default function CameraAddScreen() {
   const { width: screenWidth } = useWindowDimensions();
   const [isCameraOpen, setCameraOpen] = React.useState(false);
   const [isResultModalOpen, setResultModalOpen] = React.useState(false);
@@ -654,4 +654,5 @@ const styles = StyleSheet.create({
     color: '#111111',
   },
 });
+
 
