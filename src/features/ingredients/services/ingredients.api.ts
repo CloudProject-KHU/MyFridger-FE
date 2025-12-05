@@ -106,17 +106,35 @@ type MaterialsListResponse = {
 };
 
 export async function fetchIngredients(): Promise<Ingredient[]> {
-  const response = await fetch(`${API_BASE_URL}/materials`, {
-    method: 'GET',
-  });
+  const allItems: MaterialResponse[] = [];
+  let cursor: string | null = null;
+  let hasMore = true;
 
-  if (!response.ok) {
-    throw new Error(`재료 목록 조회 실패 (${response.status})`);
+  // 모든 페이지를 가져올 때까지 반복
+  while (hasMore) {
+    // cursor가 있으면 쿼리 파라미터로 추가
+    const url = cursor
+      ? `${API_BASE_URL}/materials?cursor=${encodeURIComponent(cursor)}`
+      : `${API_BASE_URL}/materials`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error(`재료 목록 조회 실패 (${response.status})`);
+    }
+
+    const data = (await response.json()) as MaterialsListResponse;
+    const items = Array.isArray(data.result) ? data.result : [];
+    allItems.push(...items);
+
+    // 다음 페이지가 있는지 확인
+    hasMore = data.has_next === true && data.next_cursor != null;
+    cursor = data.next_cursor || null;
   }
 
-  const data = (await response.json()) as MaterialsListResponse;
-  const items = Array.isArray(data.result) ? data.result : [];
-  return items.map(mapMaterialToIngredient);
+  return allItems.map(mapMaterialToIngredient);
 }
 
 // ---- 개별 재료 조회 (/materials/{id}) ----
