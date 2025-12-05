@@ -1,26 +1,26 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+
+import CarrotIcon from '@/assets/images/carrot.svg';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [username, setUsername] = React.useState('');
+  const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
   const handleSubmit = () => {
     // TODO: 실제 로그인 API 연동
-    console.log('로그인 시도:', { username, password });
-    Alert.alert('로그인 시도', `${username}`);
+    console.log('로그인 시도:', { email, password });
 
     // 임시로 홈 탭으로 이동
     router.replace('/(tabs)');
@@ -32,31 +32,32 @@ export default function LoginScreen() {
         style={styles.root}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={styles.card}>
-          <View style={styles.logo}>
-            <Text style={styles.logoIcon}>🧊</Text>
-            <Text style={styles.title}>마이냉장고</Text>
-            <Text style={styles.subtitle}>신선한 재료 관리의 시작</Text>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <View style={styles.iconContainer}>
+              <CarrotIcon width={180} height={180} />
+            </View>
+            <Text style={styles.title}>냉장고 관리</Text>
+            <Text style={styles.subtitle}>신선함을 지키는 가장 쉬운 방법</Text>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>아이디</Text>
             <TextInput
               style={styles.input}
-              placeholder="아이디를 입력하세요"
+              placeholder="이메일"
               placeholderTextColor="#999999"
-              value={username}
-              onChangeText={setUsername}
+              value={email}
+              onChangeText={setEmail}
               autoCapitalize="none"
               autoCorrect={false}
+              keyboardType="email-address"
             />
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>비밀번호</Text>
             <TextInput
               style={styles.input}
-              placeholder="비밀번호를 입력하세요"
+              placeholder="비밀번호"
               placeholderTextColor="#999999"
               value={password}
               onChangeText={setPassword}
@@ -76,70 +77,61 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#667eea',
+    backgroundColor: '#FFF8E7',
   },
   root: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
-  card: {
+  container: {
     width: '100%',
-    maxWidth: 400,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    paddingHorizontal: 24,
-    paddingVertical: 32,
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 12 },
-    elevation: 8,
-  },
-  logo: {
     alignItems: 'center',
-    marginBottom: 28,
   },
-  logoIcon: {
-    fontSize: 52,
-    marginBottom: 8,
+  header: {
+    alignItems: 'center',
+    marginBottom: 48,
+  },
+  iconContainer: {
+    marginBottom: 16,
+    //opacity: 0.6,
   },
   title: {
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: '700',
-    color: '#333333',
-    marginBottom: 4,
+    color: '#FFAE2C',
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#666666',
+    textAlign: 'center',
   },
   inputGroup: {
-    marginBottom: 18,
-  },
-  label: {
-    fontSize: 14,
-    color: '#555555',
-    marginBottom: 6,
-    fontWeight: '500',
+    width: '100%',
+    marginBottom: 16,
   },
   input: {
-    borderWidth: 2,
-    borderColor: '#e0e0e0',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    fontSize: 14,
+    width: '100%',
+    height: 52,
+    //borderWidth: 1,
+    //borderColor: '#E0E0E0',
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
     color: '#111111',
+    backgroundColor: '#FFFFFF',
   },
   loginButton: {
-    marginTop: 24,
-    backgroundColor: '#667eea',
-    borderRadius: 10,
-    paddingVertical: 14,
+    width: '100%',
+    height: 52,
+    marginTop: 32,
+    borderRadius: 999,
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#FFAE2C',
   },
   loginButtonText: {
     fontSize: 16,
@@ -147,6 +139,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 });
+
 
 
 

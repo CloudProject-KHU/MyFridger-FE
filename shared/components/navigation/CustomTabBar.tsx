@@ -41,9 +41,9 @@ type FloatingAction = {
 };
 
 const ACTIONS: FloatingAction[] = [
-  { key: 'search', label: '재료 검색', route: '/add/select', angleDeg: 210, icon: SearchIcon, tint: '#FFAE2C' },
-  { key: 'form', label: '직접 입력', route: '/add/form', angleDeg: 270, icon: EditIcon, tint: '#FFAE2C' },
-  { key: 'camera', label: '카메라', route: '/add/camera', angleDeg: 330, icon: CameraIcon, tint: '#FFAE2C' },
+  { key: 'camera', label: '카메라로 추가하기', route: '/add/camera', angleDeg: 330, icon: CameraIcon, tint: '#FFAE2C' },
+  { key: 'search', label: '재료 검색해서 추가하기', route: '/add/select', angleDeg: 210, icon: SearchIcon, tint: '#FFAE2C' },
+  { key: 'form', label: '직접 추가하기', route: '/add/form', angleDeg: 270, icon: EditIcon, tint: '#FFAE2C' },
 ];
 
 
@@ -84,9 +84,12 @@ export default function CustomTabBar({
   };
 
   const handleActionPress = (route: string) => {
-    // 모달을 즉시 닫고 라우팅 시작 (애니메이션 대기 없이)
-    setModalVisible(false);
+    // 라우팅을 먼저 시작하고, 모달은 백그라운드에서 닫히도록
     router.push(route as never);
+    // 다음 틱에서 모달 닫기 (라우팅이 블로킹되지 않도록)
+    setTimeout(() => {
+      setModalVisible(false);
+    }, 0);
   };
 
   return (
@@ -96,7 +99,7 @@ export default function CustomTabBar({
         {routes.map((route) => {
           const isFocused = state.index === state.routes.indexOf(route);
           const IconComponent = ROUTE_ICON[route.name as RouteKey];
-          const color = isFocused ? palette.text : palette.tabIconDefault;
+          const color = isFocused ? '#FFAE2C' : palette.tabIconDefault;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -128,7 +131,8 @@ export default function CustomTabBar({
             <View style={styles.fabContainer}>
               <Pressable onPress={toggleMenu} style={styles.fabPressable}>
                 <View style={styles.fab}>
-                  <PlusIcon width={28} height={28} color="#FFFFFF" />
+                  <PlusIcon width={20} height={20} color="#FFFFFF" />
+                  <Text style={styles.fabText}>재료 추가</Text>
                 </View>
               </Pressable>
             </View>
@@ -141,7 +145,6 @@ export default function CustomTabBar({
           <Pressable style={StyleSheet.absoluteFill} onPress={closeMenu} />
           <View style={styles.modalSheet}>
             <View style={styles.modalHandle} />
-            <Text style={styles.modalTitle}>재료 추가하기</Text>
             <View style={styles.modalActions}>
               {ACTIONS.map((action) => (
                 <TouchableOpacity
@@ -149,8 +152,8 @@ export default function CustomTabBar({
                   style={styles.modalActionButton}
                   onPress={() => handleActionPress(action.route)}
                 >
-                  <View style={[styles.modalActionIcon, { backgroundColor: action.tint }]}>
-                    <action.icon width={24} height={24} color="#FFFFFF" />
+                  <View style={styles.modalActionIcon}>
+                    <action.icon width={24} height={24} color={action.tint} />
                   </View>
                   <Text style={styles.modalActionLabel}>{action.label}</Text>
                 </TouchableOpacity>
@@ -190,19 +193,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   fab: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 999,
     backgroundColor: '#FFAE2C',
+  },
+  fabPressable: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  fabPressable: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
+  fabText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   modalBackdrop: {
     flex: 1,
@@ -223,37 +230,27 @@ const styles = StyleSheet.create({
     height: 5,
     borderRadius: 999,
     backgroundColor: '#DBDBDB',
-    marginBottom: 24,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#111111',
-    marginBottom: 24,
-    textAlign: 'center',
+    marginBottom: 20,
   },
   modalActions: {
-    gap: 16,
+    gap: 0,
   },
   modalActionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 16,
-    backgroundColor: '#F5F5F5',
+    paddingVertical: 20,
+    paddingHorizontal: 0,
   },
   modalActionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 24,
+    height: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
   modalActionLabel: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#111111',
   },
 });
