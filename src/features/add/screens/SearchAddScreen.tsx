@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, FlatList, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import PlusIcon from '@/assets/images/plus.svg';
 import IngredientSelectableCard from '@features/add/components/IngredientSelectableCard';
 import { createMaterialManual, fetchIngredients } from '@features/ingredients/services/ingredients.api';
 import { Ingredient } from '@features/ingredients/types';
@@ -116,6 +117,26 @@ export default function SearchAddScreen() {
           placeholder="재료를 검색하세요"
           containerStyle={styles.searchBar}
         />
+        <Pressable
+          style={styles.suggestionCard}
+          onPress={() => router.push('/add/form')}
+        >
+          <View style={styles.suggestionContent}>
+            <View style={styles.suggestionIcon}>
+              <Text style={styles.suggestionIconEmoji}>💡</Text>
+            </View>
+            <View style={styles.suggestionTexts}>
+              <Text style={styles.suggestionTitle}>찾는 재료가 없나요?</Text>
+              <Text style={styles.suggestionSubtitle}>재료나 반찬을 직접 추가해보세요!</Text>
+            </View>
+          </View>
+          <Pressable
+            style={styles.suggestionButton}
+            onPress={() => router.push('/add/form')}
+          >
+            <PlusIcon width={20} height={20} color="#FFFFFF" />
+          </Pressable>
+        </Pressable>
         <TagTabs
           options={INGREDIENT_CATEGORY_OPTIONS}
           activeValue={activeCategory}
@@ -224,6 +245,54 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     marginTop: 8,
+  },
+  suggestionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 2,
+    borderColor: '#FFE5B8',
+    backgroundColor: '#FFF8E7',
+    borderRadius: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+    marginTop: 4,
+  },
+  suggestionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 12,
+  },
+  suggestionIcon: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  suggestionIconEmoji: {
+    fontSize: 32,
+  },
+  suggestionTexts: {
+    flex: 1,
+    gap: 4,
+  },
+  suggestionTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#111111',
+  },
+  suggestionSubtitle: {
+    fontSize: 13,
+    color: '#666666',
+  },
+  suggestionButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFAE2C',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tabsContainer: {
     paddingVertical: 4,

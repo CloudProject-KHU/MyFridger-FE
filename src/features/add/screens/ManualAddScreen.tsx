@@ -1,3 +1,4 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation, useRouter } from "expo-router";
 import React from "react";
 import {
@@ -18,6 +19,7 @@ import PlusIcon from "@/assets/images/plus.svg";
 import { createMaterialManual } from "@features/ingredients/services/ingredients.api";
 import ActionButton from "@shared/components/buttons/ActionButton";
 import DatePickerModal from "@shared/components/calendar/DatePickerModal";
+import QuantityControl from "@shared/components/inputs/QuantityControl";
 import Header from "@shared/components/navigation/Header";
 import {
   INGREDIENT_CATEGORY_LABELS,
@@ -131,11 +133,11 @@ export default function ManualAddScreen() {
     }
   };
 
-  const handleQuantityChange = (ingredientId: string, delta: number) => {
+  const handleQuantityChange = (ingredientId: string, newValue: number) => {
     setIngredients(
       ingredients.map((item) =>
         item.id === ingredientId
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
+          ? { ...item, quantity: newValue }
           : item
       )
     );
@@ -268,67 +270,53 @@ export default function ManualAddScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <View style={styles.inputWithIcon}>
-                <Text style={styles.inputLabel}>재료 개수</Text>
-                <View style={styles.quantityControl}>
+              <View style={styles.rowInputs}>
+                <View style={styles.quantityInput}>
+                  <QuantityControl
+                    value={ingredient.quantity}
+                    onChange={(newValue) => handleQuantityChange(ingredient.id, newValue)}
+                    min={1}
+                  />
+                </View>
+                <View style={styles.categoryInput}>
                   <Pressable
-                    style={styles.quantityButton}
-                    onPress={() => handleQuantityChange(ingredient.id, -1)}
+                    style={styles.inputWithIcon}
+                    onPress={() => toggleCategoryDropdown(ingredient.id)}
                   >
-                    <Text style={styles.quantityButtonText}>-</Text>
-                  </Pressable>
-                  <View style={styles.quantityBox}>
-                    <Text style={styles.quantityText}>
-                      {ingredient.quantity}
+                    <Text
+                      style={[
+                        styles.inputText,
+                        !ingredient.category && styles.placeholderText,
+                      ]}
+                    >
+                      {ingredient.category
+                        ? INGREDIENT_CATEGORY_LABELS[ingredient.category] ?? ingredient.category
+                        : "카테고리"}
                     </Text>
-                  </View>
-                  <Pressable
-                    style={styles.quantityButton}
-                    onPress={() => handleQuantityChange(ingredient.id, 1)}
-                  >
-                    <Text style={styles.quantityButtonText}>+</Text>
+                    <ArrowIcon width={16} height={16} color="#999999" />
                   </Pressable>
+
+                  {categoryDropdownVisible[ingredient.id] && (
+                    <ScrollView
+                      style={styles.categoryDropdown}
+                      nestedScrollEnabled={true}
+                      showsVerticalScrollIndicator={true}
+                    >
+                      {categories.map((cat) => (
+                        <Pressable
+                          key={cat.value}
+                          style={styles.categoryItem}
+                          onPress={() =>
+                            handleSelectCategory(ingredient.id, cat.value)
+                          }
+                        >
+                          <Text style={styles.categoryText}>{cat.label}</Text>
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+                  )}
                 </View>
               </View>
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Pressable
-                style={styles.inputWithIcon}
-                onPress={() => toggleCategoryDropdown(ingredient.id)}
-              >
-                <Text
-                  style={[
-                    styles.inputText,
-                    !ingredient.category && styles.placeholderText,
-                  ]}
-                >
-                  {ingredient.category
-                    ? INGREDIENT_CATEGORY_LABELS[ingredient.category] ?? ingredient.category
-                    : "카테고리"}
-                </Text>
-                <ArrowIcon width={16} height={16} color="#999999" />
-              </Pressable>
-
-              {categoryDropdownVisible[ingredient.id] && (
-                <ScrollView
-                  style={styles.categoryDropdown}
-                  nestedScrollEnabled={true}
-                  showsVerticalScrollIndicator={true}
-                >
-                  {categories.map((cat) => (
-                    <Pressable
-                      key={cat.value}
-                      style={styles.categoryItem}
-                      onPress={() =>
-                        handleSelectCategory(ingredient.id, cat.value)
-                      }
-                    >
-                      <Text style={styles.categoryText}>{cat.label}</Text>
-                    </Pressable>
-                  ))}
-                </ScrollView>
-              )}
             </View>
 
             <View style={styles.inputGroup}>
@@ -374,19 +362,30 @@ export default function ManualAddScreen() {
                   style={styles.durationButton}
                   onPress={() => handleAddDuration(ingredient.id, "day")}
                 >
-                  <Text style={styles.durationButtonText}>+Day 1</Text>
+                  <Text style={styles.durationButtonText}>+ 1D</Text>
                 </Pressable>
                 <Pressable
                   style={styles.durationButton}
                   onPress={() => handleAddDuration(ingredient.id, "week")}
                 >
-                  <Text style={styles.durationButtonText}>+Week 1</Text>
+                  <Text style={styles.durationButtonText}>+ 1W</Text>
                 </Pressable>
                 <Pressable
                   style={styles.durationButton}
                   onPress={() => handleAddDuration(ingredient.id, "month")}
                 >
-                  <Text style={styles.durationButtonText}>+Month 1</Text>
+                  <Text style={styles.durationButtonText}>+ 1M</Text>
+                </Pressable>
+                <Pressable style={styles.aiButton}>
+                  <LinearGradient
+                    colors={['#667eea', '#764ba2']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.aiButtonGradient}
+                  >
+                    <Text style={styles.aiIcon}>✨</Text>
+                    <Text style={styles.aiText}>AI</Text>
+                  </LinearGradient>
                 </Pressable>
               </View>
             </View>
@@ -438,20 +437,61 @@ const styles = StyleSheet.create({
   },
   ingredientContainer: {
     backgroundColor: "#FFF8E7",
+    borderWidth: 2,
+    borderColor: "#FFE5B8",
     borderRadius: 16,
-    padding: 24,
+    paddingHorizontal: 24,
+    paddingBottom: 10,
     paddingTop: 44,
-    marginBottom: 12,
+    marginBottom: 16,
     position: "relative",
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: 14,
+  },
+  rowInputs: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  quantityInput: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    height: 52,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  categoryInput: {
+    flex: 1,
+    position: 'relative',
+  },
+  aiButton: {
+    borderRadius: 30,
+    overflow: 'hidden',
+  },
+  aiButtonGradient: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 4,
+  },
+  aiIcon: {
+    fontSize: 13,
+  },
+  aiText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#FFFFFF',
   },
   input: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    height: 52,
     fontSize: 15,
     color: "#111111",
     fontWeight: "500",
@@ -460,7 +500,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    height: 52,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -477,42 +517,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#999999",
   },
-  quantityControl: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  quantityButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "#F0F0F0",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  quantityButtonText: {
-    fontSize: 18,
-    fontWeight: "500",
-    color: "#666666",
-    lineHeight: 18,
-  },
-  quantityBox: {
-    minWidth: 40,
-    height: 28,
-    borderWidth: 1,
-    backgroundColor: "#F9F9F9",
-    borderColor: "#DDDDDD",
-    borderRadius: 6,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 8,
-  },
-  quantityText: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#111111",
-    textAlign: "center",
-  },
   datePickerButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -524,14 +528,15 @@ const styles = StyleSheet.create({
   },
   durationButtons: {
     flexDirection: "row",
-    gap: 20,
+    gap: 12,
     marginTop: 22,
-    justifyContent: "center",
+    justifyContent: "flex-start",
+    alignItems: "center",
   },
   durationButton: {
     paddingHorizontal: 16,
     backgroundColor: "#FFE5B8",
-    borderWidth: 1,
+    //borderWidth: 1,
     borderColor: "#FFAE2C",
     borderRadius: 30,
     paddingVertical: 10,
@@ -554,11 +559,20 @@ const styles = StyleSheet.create({
     paddingTop: 24,
   },
   categoryDropdown: {
+    position: 'absolute',
+    top: 60,
+    left: 0,
+    right: 0,
     backgroundColor: "#FFFFFF",
     borderRadius: 8,
-    marginTop: 8,
     paddingVertical: 4,
-    maxHeight: 200,
+    maxHeight: 160,
+    zIndex: 1000,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
   },
   categoryItem: {
     paddingVertical: 12,

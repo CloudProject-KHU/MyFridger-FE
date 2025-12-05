@@ -1,21 +1,22 @@
 import React from 'react';
 import {
-    Alert,
-    FlatList,
-    ImageBackground,
-    Modal,
-    Pressable,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-    useWindowDimensions,
+  Alert,
+  FlatList,
+  ImageBackground,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ReceiptIcon from '@/assets/images/receipt.svg';
+import CameraIcon from '@/assets/images/camera.svg';
+import CarrotSadIcon from '@/assets/images/carrot-sad.svg';
 import IngredientSelectableCard from '@features/add/components/IngredientSelectableCard';
-import { bulkDeleteIngredients, createMaterialsFromReceipt } from '@features/ingredients/services/ingredients.api';
+import { bulkDeleteIngredients } from '@features/ingredients/services/ingredients.api';
 import { Ingredient } from '@features/ingredients/types';
 import { requestCameraPermissionsAsync } from '@shared/camera/camera';
 import ActionButton from '@shared/components/buttons/ActionButton';
@@ -82,8 +83,61 @@ export default function CameraAddScreen() {
       setCameraOpen(false);
       setIsProcessing(true);
 
-      // OCR API 호출
-      const ingredients = await createMaterialsFromReceipt(photo.uri);
+      // TODO: 더미 데이터 - 실제 OCR API로 교체 필요
+      await new Promise((resolve) => setTimeout(resolve, 1500)); // 로딩 시뮬레이션
+      const ingredients: Ingredient[] = [
+        {
+          id: '1',
+          name: '아보카도',
+          category: 'vegetable',
+          iconId: 'avocado',
+          quantity: 2,
+          addedAt: new Date().toISOString(),
+          expiresOn: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        },
+        {
+          id: '2',
+          name: '브로콜리',
+          category: 'vegetable',
+          iconId: 'broccoli',
+          quantity: 1,
+          addedAt: new Date().toISOString(),
+          expiresOn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        },
+        {
+          id: '3',
+          name: '당근',
+          category: 'vegetable',
+          iconId: 'carrot',
+          quantity: 3,
+          addedAt: new Date().toISOString(),
+          expiresOn: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          expiresAt: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        },
+        {
+          id: '4',
+          name: '사과',
+          category: 'fruit',
+          iconId: 'apple',
+          quantity: 5,
+          addedAt: new Date().toISOString(),
+          expiresOn: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        },
+        {
+          id: '5',
+          name: '닭고기',
+          category: 'meat',
+          iconId: 'chicken',
+          quantity: 1,
+          addedAt: new Date().toISOString(),
+          expiresOn: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          expiresAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        },
+      ];
+      // const ingredients = await createMaterialsFromReceipt(photo.uri);
       setRecognized(ingredients);
       setSelectedIds(ingredients.map((item) => item.id));
       setIsProcessing(false);
@@ -136,13 +190,65 @@ export default function CameraAddScreen() {
       setIsProcessing(true);
 
       try {
-        // OCR API 호출
-        // asset.type을 전달하여 올바른 MIME 타입 사용
-        const ingredients = await createMaterialsFromReceipt(
-          asset.uri,
-          asset.fileName || undefined,
-          asset.type || undefined,
-        );
+        // TODO: 더미 데이터 - 실제 OCR API로 교체 필요
+        await new Promise((resolve) => setTimeout(resolve, 1500)); // 로딩 시뮬레이션
+        const ingredients: Ingredient[] = [
+          {
+            id: '1',
+            name: '아보카도',
+            category: 'vegetable',
+            iconId: 'avocado',
+            quantity: 2,
+            addedAt: new Date().toISOString(),
+            expiresOn: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          },
+          {
+            id: '2',
+            name: '브로콜리',
+            category: 'vegetable',
+            iconId: 'broccoli',
+            quantity: 1,
+            addedAt: new Date().toISOString(),
+            expiresOn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          },
+          {
+            id: '3',
+            name: '당근',
+            category: 'vegetable',
+            iconId: 'carrot',
+            quantity: 3,
+            addedAt: new Date().toISOString(),
+            expiresOn: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            expiresAt: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          },
+          {
+            id: '4',
+            name: '사과',
+            category: 'fruit',
+            iconId: 'apple',
+            quantity: 5,
+            addedAt: new Date().toISOString(),
+            expiresOn: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          },
+          {
+            id: '5',
+            name: '닭고기',
+            category: 'meat',
+            iconId: 'chicken',
+            quantity: 1,
+            addedAt: new Date().toISOString(),
+            expiresOn: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            expiresAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          },
+        ];
+        // const ingredients = await createMaterialsFromReceipt(
+        //   asset.uri,
+        //   asset.fileName || undefined,
+        //   asset.type || undefined,
+        // );
         setRecognized(ingredients);
         setSelectedIds(ingredients.map((item) => item.id));
         setIsProcessing(false);
@@ -194,7 +300,7 @@ export default function CameraAddScreen() {
     <View style={styles.container}>
         <View style={styles.headerSection}>
           <TouchableOpacity style={styles.banner} activeOpacity={0.85} onPress={handleOpenCamera}>
-            <ReceiptIcon width={40} height={40} />
+            <Text style={styles.bannerIcon}>📷</Text>
             <View style={styles.bannerTexts}>
               <Text style={styles.bannerTitle}>여기를 눌러 영수증 스캔을 시작하세요</Text>
               <Text style={styles.bannerDescription}>
@@ -206,7 +312,7 @@ export default function CameraAddScreen() {
           <View style={styles.recognizedHeader}>
             <Text style={styles.recognizedTitle}>인식된 식재료</Text>
             <Text style={styles.recognizedHint}>
-              인식되지 않은 식재료는 직접 추가 기능을 통해 추가해주세요.
+              인식되지 않은 식재료는 직접 추가 기능으로 추가해주세요.
             </Text>
           </View>
         </View>
@@ -227,6 +333,9 @@ export default function CameraAddScreen() {
             />
           ) : (
             <View style={styles.emptyState}>
+              <View style={styles.emptyImageContainer}>
+                <CarrotSadIcon width={120} height={120} />
+              </View>
               <Text style={styles.emptyTitle}>인식된 식재료가 없습니다.</Text>
               <Text style={styles.emptyDescription}>
                 영수증을 촬영하여 빠르게 식재료를 추가해 보세요.
@@ -326,7 +435,7 @@ export default function CameraAddScreen() {
               </Text>
             </View>
             <View style={[styles.resultImage, styles.resultPlaceholder]}>
-              <ReceiptIcon width={56} height={56} />
+              <CameraIcon width={56} height={56} />
               <Text style={styles.resultPlaceholderText}>처리 중</Text>
             </View>
           </View>
@@ -361,7 +470,7 @@ export default function CameraAddScreen() {
               </ImageBackground>
             ) : (
               <View style={[styles.resultImage, styles.resultPlaceholder]}>
-                <ReceiptIcon width={56} height={56} />
+                <CameraIcon width={56} height={56} />
                 <Text style={styles.resultPlaceholderText}>영수증 미리보기</Text>
               </View>
             )}
@@ -401,15 +510,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: HORIZONTAL_PADDING,
     paddingTop: 8,
     paddingBottom: 16,
-    gap: 24,
+    gap: 34,
   },
   banner: {
     alignItems: 'center',
     justifyContent: 'center',
     gap: 16,
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 20,
-    backgroundColor: '#F8E8D6',
+    backgroundColor: '#FFF8E7',
+    borderWidth: 2,
+    borderColor: '#FFE5B8',
+  },
+  bannerIcon: {
+    fontSize: 40,
   },
   bannerTexts: {
     gap: 6,
@@ -418,16 +532,17 @@ const styles = StyleSheet.create({
   bannerTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#5A3E1B',
+    color: '#111111',
     textAlign: 'center',
   },
   bannerDescription: {
-    fontSize: 12,
-    color: '#8C7357',
+    fontSize: 13,
+    color: '#666666',
     textAlign: 'center',
   },
   recognizedHeader: {
     gap: 6,
+    paddingHorizontal: 16,
   },
   recognizedTitle: {
     fontSize: 18,
@@ -435,7 +550,7 @@ const styles = StyleSheet.create({
     color: '#111111',
   },
   recognizedHint: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#999999',
   },
   gridContainer: {
@@ -458,6 +573,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
+  emptyImageContainer: {
+    marginBottom: 14,
+  },
   emptyTitle: {
     fontSize: 16,
     fontWeight: '600',
@@ -465,7 +583,7 @@ const styles = StyleSheet.create({
   },
   emptyDescription: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#999999',
     textAlign: 'center',
   },
   actionButton: {
