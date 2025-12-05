@@ -197,3 +197,109 @@ export async function createMaterialManual(payload: MaterialManualRequest): Prom
   return mapMaterialToIngredient(data);
 }
 
+// ---- 영수증 OCR로 재료 등록 (/materials/receipt) ----
+// 스웨거 스키마:
+// POST /materials/receipt
+// Content-Type: multipart/form-data
+// Body: { file: binary }
+// Response 201: MaterialResponse[]
+
+export async function createMaterialsFromReceipt(
+  fileUri: string,
+  fileName?: string,
+): Promise<Ingredient[]> {
+  // React Native에서 FormData 생성
+  const formData = new FormData();
+  
+  // 파일 URI 정규화 (iOS는 file:// 제거, Android는 유지)
+  // expo-camera는 이미 올바른 형식으로 URI를 반환하지만, 안전을 위해 정규화
+  let normalizedUri = fileUri;
+  if (normalizedUri.startsWith('file://')) {
+    // iOS에서는 file://를 제거해야 할 수도 있지만, 
+    // React Native FormData는 file://를 포함한 URI를 받아들입니다
+    normalizedUri = normalizedUri;
+  }
+  
+  // 파일 확장자 및 MIME 타입 결정
+  const fileExtension = fileName?.split('.').pop()?.toLowerCase() || 'jpg';
+  let mimeType = 'image/jpeg';
+  if (fileExtension === 'png') {
+    mimeType = 'image/png';
+  } else if (fileExtension === 'jpeg' || fileExtension === 'jpg') {
+    mimeType = 'image/jpeg';
+  } else if (fileExtension === 'webp') {
+    mimeType = 'image/webp';
+  }
+  
+  // FormData에 파일 추가
+  // React Native FormData 형식: { uri, type, name }
+  formData.append('file', {
+    uri: normalizedUri,
+    type: mimeType,
+    name: fileName || `receipt.${fileExtension}`,
+  } as any);
+
+  console.log('OCR API 호출:', {
+    uri: normalizedUri,
+    type: mimeType,
+    name: fileName || `receipt.${fileExtension}`,
+    apiUrl: `${API_BASE_URL}/materials/receipt`,
+  });
+
+  const response = await fetch(`${API_BASE_URL}/materials/receipt`, {
+    method: 'POST',
+    headers: {
+      // FormData를 사용할 때는 Content-Type을 명시하지 않습니다
+      // React Native가 자동으로 multipart/form-data와 boundary를 설정합니다
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    let message = `영수증 OCR 실패 (${response.status})`;
+    let errorDetails: any = null;
+    
+    try {
+      const errorText = await response.text();
+      console.error('OCR API 에러 응답:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+      });
+      
+      try {
+        errorDetails = JSON.parse(errorText);
+      } catch {
+        // JSON 파싱 실패 시 텍스트 그대로 사용
+        errorDetails = { raw: errorText };
+      }
+      
+      const anyData = errorDetails as any;
+      if (typeof anyData?.message === 'string') {
+        message = anyData.message;
+      } else if (typeof anyData?.detail === 'string') {
+        message = anyData.detail;
+      } else if (Array.isArray(anyData?.detail)) {
+        // FastAPI 스타일의 validation error 를 사람이 읽을 수 있게 변환
+        const first = anyData.detail[0];
+        if (first) {
+          const loc = Array.isArray(first.loc) ? first.loc.join('.') : first.loc;
+          const msg = first.msg ?? JSON.stringify(first);
+          message = `${loc}: ${msg}`;
+        }
+      } else if (anyData?.raw) {
+        message = `서버 오류: ${anyData.raw.substring(0, 200)}`;
+      } else {
+        message = JSON.stringify(anyData);
+      }
+    } catch (parseError) {
+      console.error('에러 응답 파싱 실패:', parseError);
+    }
+    
+    throw new Error(message);
+  }
+
+  const data = (await response.json()) as MaterialResponse[];
+  return data.map(mapMaterialToIngredient);
+}
+
