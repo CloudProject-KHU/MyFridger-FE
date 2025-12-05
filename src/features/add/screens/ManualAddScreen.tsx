@@ -12,8 +12,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import ArrowIcon from "@/assets/images/^.svg";
+import CalendarIcon from "@/assets/images/calendar-grey.svg";
 import CloseIcon from "@/assets/images/close.svg";
-import CalendarIcon from "@/assets/images/Frame.svg";
 import PlusIcon from "@/assets/images/plus.svg";
 import { createMaterialManual } from "@features/ingredients/services/ingredients.api";
 import ActionButton from "@shared/components/buttons/ActionButton";

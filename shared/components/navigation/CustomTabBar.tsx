@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   modalActionLabel: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#111111',
+    color: '#36383E',
   },
 });
 

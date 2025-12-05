@@ -9,8 +9,7 @@ import {
   View,
 } from 'react-native';
 
-import CalendarIcon from '@/assets/images/calandar.svg';
-import DeleteIcon from '@/assets/images/delete.svg';
+import CalendarIcon from '@/assets/images/calendar-grey.svg';
 import QuantityControl from '@/shared/components/inputs/QuantityControl';
 import { getIngredientIconComponent } from '@/shared/utils/ingredientIcon';
 import { MaterialUpdateRequest, updateIngredientById } from '@features/ingredients/services/ingredients.api';
@@ -191,7 +190,6 @@ export default function IngredientDetailModal({
               <Text style={styles.editText}>{isEditing ? '저장하기' : '수정하기'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-              <DeleteIcon width={20} height={20} color="#C62828" />
               <Text style={styles.deleteText}>삭제하기</Text>
             </TouchableOpacity>
           </View>
@@ -355,7 +353,7 @@ const styles = StyleSheet.create({
   },
   headerTexts: {
     flex: 1,
-    gap: 8,
+    gap: 10,
   },
   name: {
     fontSize: 24,
@@ -376,21 +374,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   detailLabel: {
-    fontSize: 15,
-    color: '#6B7280',
+    fontSize: 16,
+    color: '#36383E',
+    fontWeight: '500',
   },
   detailValue: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     backgroundColor: '#F0F0F0',
-    borderRadius: 12,
+    borderRadius: 999,
     paddingHorizontal: 16,
     paddingVertical: 10,
   },
   detailValueText: {
-    fontSize: 15,
+    fontSize: 16,
     color: '#999999',
+    fontWeight: '500',
   },
   actionsRow: {
     marginTop: 16,
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
     borderRadius: 999,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#ffffff',
   },
   disabledButton: {
     opacity: 0.6,
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     paddingVertical: 12,
     borderRadius: 999,
-    backgroundColor: '#FFECEC',
+    backgroundColor: '#ffffff',
   },
   editText: {
     fontSize: 16,
