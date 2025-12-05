@@ -38,7 +38,7 @@ export default function IngredientSelectableCard({
       ]}
     >
       <View style={styles.iconWrapper}>
-        {IconComponent ? <IconComponent width={48} height={48} /> : null}
+        {IconComponent ? <IconComponent width={40} height={40} /> : null}
       </View>
       <Text style={styles.name} numberOfLines={1}>
         {ingredient.name}
