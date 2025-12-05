@@ -1,32 +1,32 @@
 import React from 'react';
-import { FlatList, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
 import IngredientSelectableCard from '@features/add/components/IngredientSelectableCard';
 import { Ingredient } from '@features/ingredients/types';
+import { createMaterialManual } from '@features/ingredients/services/ingredients.api';
+import { fetchIngredients } from '@features/ingredients/services/ingredients.api';
 import ActionButton from '@shared/components/buttons/ActionButton';
 import SearchBar from '@shared/components/inputs/SearchBar';
 import TagTabs from '@shared/components/tabs/TagTabs';
 import {
   INGREDIENT_CATEGORY_OPTIONS,
 } from '@shared/constants/ingredientCategories';
+import { INGREDIENT_ICON_CATEGORIES } from '@shared/constants/ingredientIcons';
 
-const SAMPLE_INGREDIENTS: Ingredient[] = [
-  { id: '1', name: '상추', category: 'vegetable', iconId: 'lettuce' },
-  { id: '2', name: '토마토', category: 'vegetable', iconId: 'tomato' },
-  { id: '3', name: '사과', category: 'fruit', iconId: 'apple' },
-  { id: '4', name: '복숭아', category: 'fruit', iconId: 'peach' },
-  { id: '5', name: '돼지고기', category: 'meat', iconId: 'pork' },
-  { id: '6', name: '새우', category: 'seafood', iconId: 'shrimp' },
-  { id: '7', name: '간장', category: 'seasoning', iconId: 'soy_sauce' },
-  { id: '8', name: '참기름', category: 'seasoning', iconId: 'sesame_oil' },
-  { id: '9', name: '치즈', category: 'dairy_processed', iconId: 'cheese' },
-  { id: '10', name: '우유', category: 'dairy_processed', iconId: 'milk' },
-  { id: '11', name: '진미채 볶음', category: 'homemade', iconId: 'homemade' },
-  { id: '12', name: '장조림', category: 'homemade', iconId: 'homemade' },
-];
-
-const ALREADY_ADDED_IDS = new Set(['7', '10', '11']);
+// ingredientIcons.ts의 데이터를 기반으로 모든 재료 목록 생성
+// "모음", "아이콘" 같은 것들은 제외
+const ALL_INGREDIENTS: Ingredient[] = INGREDIENT_ICON_CATEGORIES.flatMap((category) =>
+  category.items
+    .filter((item) => !item.name.includes('모음') && !item.name.includes('아이콘'))
+    .map((item, index) => ({
+      id: `${category.value}-${item.id}`,
+      name: item.name,
+      category: category.value as Ingredient['category'],
+      iconId: item.id,
+    }))
+);
 
 const CARD_COLUMNS = 4;
 const CARD_GAP = 10;
@@ -36,12 +36,30 @@ const keyExtractor = (item: Ingredient) => item.id;
 
 export default function SearchAddScreen() {
   const { width: screenWidth } = useWindowDimensions();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [activeCategory, setActiveCategory] = React.useState(INGREDIENT_CATEGORY_OPTIONS[0].value);
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  const [alreadyAddedIds, setAlreadyAddedIds] = React.useState<Set<string>>(new Set());
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  // 서버에서 이미 추가된 재료 목록 가져오기
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const existingIngredients = await fetchIngredients();
+        // 재료 이름으로 매칭하여 이미 추가된 재료 ID 추출
+        const addedNames = new Set(existingIngredients.map((ing) => ing.name));
+        const addedIds = ALL_INGREDIENTS.filter((ing) => addedNames.has(ing.name)).map((ing) => ing.id);
+        setAlreadyAddedIds(new Set(addedIds));
+      } catch (error) {
+        console.error('재료 목록 불러오기 실패:', error);
+      }
+    })();
+  }, []);
 
   const filteredIngredients = React.useMemo(() => {
-    return SAMPLE_INGREDIENTS.filter((ingredient) => {
+    return ALL_INGREDIENTS.filter((ingredient) => {
       const matchCategory =
         activeCategory === 'all' ? true : ingredient.category === activeCategory;
       const matchQuery = ingredient.name.toLowerCase().includes(searchQuery.toLowerCase().trim());
@@ -77,8 +95,8 @@ export default function SearchAddScreen() {
         <IngredientSelectableCard
           ingredient={item}
           selected={selectedIds.includes(item.id)}
-          added={ALREADY_ADDED_IDS.has(item.id)}
-          disabled={ALREADY_ADDED_IDS.has(item.id)}
+          added={alreadyAddedIds.has(item.id)}
+          disabled={alreadyAddedIds.has(item.id)}
           onPress={handleToggleIngredient}
         />
       </View>
@@ -128,11 +146,56 @@ export default function SearchAddScreen() {
       </View>
       <ActionButton
         label={actionLabel}
-        disabled={selectedCount === 0}
+        disabled={selectedCount === 0 || isSubmitting}
         tone={selectedCount === 0 ? 'secondary' : 'primary'}
         style={styles.actionButton}
-        onPress={() => {
-          // TODO: connect selection result to add store
+        onPress={async () => {
+          if (selectedCount === 0) return;
+
+          setIsSubmitting(true);
+          try {
+            const selectedIngredients = ALL_INGREDIENTS.filter((ing) =>
+              selectedIds.includes(ing.id),
+            );
+
+            // 선택한 재료들을 서버에 추가
+            const today = new Date().toISOString();
+            const results = await Promise.all(
+              selectedIngredients.map((ingredient) =>
+                createMaterialManual({
+                  name: ingredient.name,
+                  category: ingredient.category || undefined,
+                  purchased_at: today,
+                  expired_at: today, // 기본값, 나중에 수정 가능
+                  quantity: 1,
+                  price: 0,
+                  currency: 'KRW',
+                  user_id: '1', // TODO: 실제 로그인한 사용자 ID로 교체
+                  quantity_unit: '개',
+                }),
+              ),
+            );
+
+            console.log('재료 추가 완료:', results);
+
+            Alert.alert('추가 완료', `${selectedCount}개의 재료가 추가되었습니다.`, [
+              {
+                text: '확인',
+                onPress: () => {
+                  // 홈 화면으로 이동
+                  router.push('/(tabs)');
+                },
+              },
+            ]);
+          } catch (error: any) {
+            console.error('재료 추가 실패:', error);
+            Alert.alert(
+              '추가 실패',
+              error?.message || '재료 추가 중 문제가 발생했습니다. 다시 시도해주세요.',
+            );
+          } finally {
+            setIsSubmitting(false);
+          }
         }}
       />
     </SafeAreaView>
