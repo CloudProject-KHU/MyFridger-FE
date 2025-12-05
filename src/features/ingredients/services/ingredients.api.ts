@@ -207,6 +207,7 @@ export async function createMaterialManual(payload: MaterialManualRequest): Prom
 export async function createMaterialsFromReceipt(
   fileUri: string,
   fileName?: string,
+  mimeType?: string,
 ): Promise<Ingredient[]> {
   // React Native에서 FormData 생성
   const formData = new FormData();
@@ -220,28 +221,41 @@ export async function createMaterialsFromReceipt(
     normalizedUri = normalizedUri;
   }
   
-  // 파일 확장자 및 MIME 타입 결정
-  const fileExtension = fileName?.split('.').pop()?.toLowerCase() || 'jpg';
-  let mimeType = 'image/jpeg';
-  if (fileExtension === 'png') {
-    mimeType = 'image/png';
-  } else if (fileExtension === 'jpeg' || fileExtension === 'jpg') {
-    mimeType = 'image/jpeg';
-  } else if (fileExtension === 'webp') {
-    mimeType = 'image/webp';
+  // MIME 타입 결정: 전달받은 mimeType을 우선 사용, 없으면 파일 확장자로 추정
+  let finalMimeType = mimeType;
+  if (!finalMimeType) {
+    const fileExtension = fileName?.split('.').pop()?.toLowerCase() || 'jpg';
+    if (fileExtension === 'png') {
+      finalMimeType = 'image/png';
+    } else if (fileExtension === 'jpeg' || fileExtension === 'jpg') {
+      finalMimeType = 'image/jpeg';
+    } else if (fileExtension === 'webp') {
+      finalMimeType = 'image/webp';
+    } else if (fileExtension === 'heic' || fileExtension === 'heif') {
+      // HEIC 파일은 JPEG로 변환되거나 서버가 지원하지 않을 수 있으므로
+      // 일반적으로 JPEG로 변환해서 전송
+      finalMimeType = 'image/jpeg';
+    } else {
+      finalMimeType = 'image/jpeg'; // 기본값
+    }
   }
+  
+  // 파일 확장자 결정 (파일 이름이 없을 때 사용)
+  const fileExtension = fileName?.split('.').pop()?.toLowerCase() || 'jpg';
   
   // FormData에 파일 추가
   // React Native FormData 형식: { uri, type, name }
+  // HEIC 파일의 경우 서버가 지원하지 않을 수 있으므로, 
+  // expo-image-picker가 이미 JPEG로 변환했을 가능성이 높음
   formData.append('file', {
     uri: normalizedUri,
-    type: mimeType,
+    type: finalMimeType,
     name: fileName || `receipt.${fileExtension}`,
   } as any);
 
   console.log('OCR API 호출:', {
     uri: normalizedUri,
-    type: mimeType,
+    type: finalMimeType,
     name: fileName || `receipt.${fileExtension}`,
     apiUrl: `${API_BASE_URL}/materials/receipt`,
   });
