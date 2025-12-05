@@ -32,7 +32,7 @@ type IngredientFormData = {
   expirationDate: string;
 };
 
-export default function ManualFormScreen() {
+export default function ManualAddScreen() {
   const today = new Date().toISOString().split("T")[0];
   const formattedToday = formatDate(new Date());
 

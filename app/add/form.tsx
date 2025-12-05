@@ -1,6 +1,6 @@
 // 직접 재료 추가 화면
-import ManualFormScreen from '@features/add/screens/ManualFormScreen';
+import ManualAddScreen from '@features/add/screens/ManualAddScreen';
 
 export default function AddFormRoute() {
-  return <ManualFormScreen />;
+  return <ManualAddScreen />;
 }

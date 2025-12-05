@@ -1,6 +1,6 @@
-import SelectIngredientScreen from '@features/add/screens/SelectIngredientScreen';
+import SearchAddScreen from '@features/add/screens/SearchAddScreen';
 
 export default function HomeTab() {
-  return <SelectIngredientScreen />;
+  return <SearchAddScreen />;
 }
 
