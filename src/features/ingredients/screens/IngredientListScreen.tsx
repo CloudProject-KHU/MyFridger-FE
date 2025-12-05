@@ -1,9 +1,10 @@
-import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, FlatList, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import CarrotIcon from '@/assets/images/carrot.svg';
 import DeleteIcon from '@/assets/images/delete.svg';
 import SettingIcon from '@/assets/images/setting.svg';
 import Header from '@/shared/components/navigation/Header';
@@ -11,15 +12,15 @@ import TagTabs from '@/shared/components/tabs/TagTabs';
 import { INGREDIENT_CATEGORY_OPTIONS } from '@/shared/constants/ingredientCategories';
 import IngredientCard from '@features/ingredients/components/IngredientCard';
 import IngredientDetailModal from '@features/ingredients/components/IngredientDetailModal';
-import { Ingredient } from '@features/ingredients/types';
 import {
-  fetchIngredients,
-  fetchIngredientById,
   deleteIngredientById,
+  fetchIngredientById,
+  fetchIngredients,
 } from '@features/ingredients/services/ingredients.api';
+import { Ingredient } from '@features/ingredients/types';
 
-const CARD_COLUMNS = 2;
-const CARD_GAP = 12;
+const CARD_COLUMNS = 4;
+const CARD_GAP = 10;
 const HORIZONTAL_PADDING = 16;
 
 const keyExtractor = (item: Ingredient) => item.id;
@@ -161,22 +162,36 @@ export default function IngredientListScreen() {
         hideDivider
       />
       <View style={styles.container}>
-        <TagTabs
-          options={INGREDIENT_CATEGORY_OPTIONS}
-          activeValue={activeCategory}
-          onChange={setActiveCategory}
-          containerStyle={styles.tabsContainer}
-          contentStyle={styles.tabsContent}
-        />
-        <FlatList
-          data={filteredIngredients}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
-          numColumns={CARD_COLUMNS}
-          columnWrapperStyle={styles.columnWrapper}
-          showsVerticalScrollIndicator={false}
-        />
+        {ingredients.length === 0 ? (
+          <View style={styles.emptyState}>
+            <View style={styles.emptyImageContainer}>
+              <CarrotIcon width={200} height={200} />
+            </View>
+            <Text style={styles.emptyTitle}>냉장고가 비었어요!</Text>
+            <Text style={styles.emptyDescription}>
+              아래 + 버튼으로 재료를 등록하고{'\n'}바로 만들 수 있는 레시피를 확인 해보세요!
+            </Text>
+          </View>
+        ) : (
+          <>
+            <TagTabs
+              options={INGREDIENT_CATEGORY_OPTIONS}
+              activeValue={activeCategory}
+              onChange={setActiveCategory}
+              containerStyle={styles.tabsContainer}
+              contentStyle={styles.tabsContent}
+            />
+            <FlatList
+              data={filteredIngredients}
+              keyExtractor={keyExtractor}
+              renderItem={renderItem}
+              contentContainerStyle={styles.listContent}
+              numColumns={CARD_COLUMNS}
+              columnWrapperStyle={styles.columnWrapper}
+              showsVerticalScrollIndicator={false}
+            />
+          </>
+        )}
       </View>
       <IngredientDetailModal
         visible={isDetailVisible}
@@ -223,5 +238,28 @@ const styles = StyleSheet.create({
   },
   cardWrapper: {
     marginBottom: CARD_GAP,
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 32,
+    paddingTop: 120,
+  },
+  emptyImageContainer: {
+    marginBottom: 32,
+  },
+  emptyTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#111111',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  emptyDescription: {
+    fontSize: 16,
+    color: '#666666',
+    textAlign: 'center',
+    lineHeight: 24,
   },
 });

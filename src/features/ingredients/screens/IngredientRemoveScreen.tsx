@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, FlatList, StyleSheet, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { INGREDIENT_CATEGORY_OPTIONS } from '@/shared/constants/ingredientCategories';
@@ -14,9 +14,14 @@ import {
   bulkDeleteIngredients,
 } from '@features/ingredients/services/ingredients.api';
 
+const CARD_COLUMNS = 4;
+const CARD_GAP = 10;
+const HORIZONTAL_PADDING = 16;
+
 const keyExtractor = (item: Ingredient) => item.id;
 
 export default function IngredientRemoveScreen() {
+  const { width: screenWidth } = useWindowDimensions();
   const router = useRouter();
   const [ingredients, setIngredients] = React.useState<Ingredient[]>([]);
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
@@ -78,17 +83,33 @@ export default function IngredientRemoveScreen() {
     );
   }, [ingredients, selectedIds]);
 
+  const cardWidth = React.useMemo(() => {
+    const containerWidth = screenWidth - HORIZONTAL_PADDING * 2;
+    return (containerWidth - CARD_GAP * (CARD_COLUMNS - 1)) / CARD_COLUMNS;
+  }, [screenWidth]);
+
   const renderItem = React.useCallback(
-    ({ item }: { item: Ingredient }) => (
-      <View style={styles.cardWrapper}>
-        <IngredientCardSelectable
-          ingredient={item}
-          selected={selectedIds.includes(item.id)}
-          onPress={toggleSelect}
-        />
-      </View>
-    ),
-    [selectedIds, toggleSelect],
+    ({ item, index }: { item: Ingredient; index: number }) => {
+      const isLastInRow = (index + 1) % CARD_COLUMNS === 0;
+      return (
+        <View
+          style={[
+            styles.cardWrapper,
+            {
+              width: cardWidth,
+              marginRight: isLastInRow ? 0 : CARD_GAP,
+            },
+          ]}
+        >
+          <IngredientCardSelectable
+            ingredient={item}
+            selected={selectedIds.includes(item.id)}
+            onPress={toggleSelect}
+          />
+        </View>
+      );
+    },
+    [selectedIds, toggleSelect, cardWidth],
   );
 
   return (
@@ -111,7 +132,7 @@ export default function IngredientRemoveScreen() {
           data={filteredIngredients}
           keyExtractor={keyExtractor}
           renderItem={renderItem}
-          numColumns={2}
+          numColumns={CARD_COLUMNS}
           columnWrapperStyle={styles.columnWrapper}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
@@ -139,7 +160,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: HORIZONTAL_PADDING,
     paddingVertical: 8,
   },
   tabsContainer: {
@@ -149,16 +170,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   columnWrapper: {
-    justifyContent: 'space-between',
-    gap: 12,
+    justifyContent: 'flex-start',
+    marginBottom: 0,
   },
   listContent: {
-    paddingBottom: 24,
-    gap: 12,
+    paddingBottom: 120,
   },
   cardWrapper: {
-    width: '48%',
-    //flex: 1,
+    marginBottom: CARD_GAP,
   },
   deleteButton: {
     marginTop: 'auto',

@@ -147,7 +147,7 @@ export default function SearchAddScreen() {
       <ActionButton
         label={actionLabel}
         disabled={selectedCount === 0 || isSubmitting}
-        tone={selectedCount === 0 ? 'secondary' : 'primary'}
+        tone="primary"
         style={styles.actionButton}
         onPress={async () => {
           if (selectedCount === 0) return;

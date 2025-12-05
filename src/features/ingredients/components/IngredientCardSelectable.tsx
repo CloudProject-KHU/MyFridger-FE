@@ -1,8 +1,7 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import { Ingredient } from '@features/ingredients/types';
-import SquareCheckIcon from '@/assets/images/square-check.svg';
 import IngredientCard from './IngredientCard';
 
 export type IngredientCardSelectableProps = {
@@ -27,24 +26,7 @@ export default function IngredientCardSelectable({
       selected={selected}
       onPress={() => onPress?.(ingredient)}
       secondaryText={subtitle}
-      accessory={
-        <View style={[styles.checkbox, selected && styles.checkboxSelected]}>
-          <SquareCheckIcon
-            width={20}
-            height={20}
-            color={selected ? '#FF3B30' : '#D1D5DB'}
-          />
-        </View>
-      }
+      accessory={<View />}
     />
   );
 }
-
-const styles = StyleSheet.create({
-  checkbox: {
-    padding: 2,
-  },
-  checkboxSelected: {
-    borderRadius: 8,
-  },
-});

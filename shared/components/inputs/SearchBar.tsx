@@ -29,7 +29,7 @@ const SearchBar = forwardRef<TextInput, SearchBarProps>(function SearchBar(
             icon: '#9e9e9e',
           }
         : {
-            background: '#f1f1f1',
+            background: '#F5F5F5',
             text: '#212121',
             placeholder: '#9e9e9e',
             icon: '#757575',
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 20,
+    borderRadius: 999,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },

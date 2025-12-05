@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text } from "react-native";
 import Colors from "@/shared/constants/Colors";
 import { useColorScheme } from "@/shared/hooks/useColorScheme";
 
-type ActionButtonTone = "primary" | "secondary" | "destructive" | "inactive";
+type ActionButtonTone = "primary" | "destructive";
 
 export type ActionButtonProps = {
   label: string;
@@ -23,7 +23,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   label,
   subLabel,
   onPress,
-  tone = "secondary",
+  tone = "primary",
   disabled = false,
   fullWidth = true,
   style,
@@ -82,12 +82,12 @@ function getToneColors(tone: ActionButtonTone, palette: Palette) {
   switch (tone) {
     case "primary":
       return {
-        background: "#D9D9D9",
-        text: "#111111",
-        subText: "#111111",
+        background: "#FFAE2C",
+        text: "#FFFFFF",
+        subText: "#FFFFFF",
         border: "transparent",
-        disabledBackground: "#E5E5E5",
-        disabledText: "#A1A1A1",
+        disabledBackground: "#FFEFD4",
+        disabledText: "#D4BE9F",
       };
     case "destructive":
       return {
@@ -98,32 +98,22 @@ function getToneColors(tone: ActionButtonTone, palette: Palette) {
         disabledBackground: "#f9d6d4",
         disabledText: "#d97a7a",
       };
-    case "inactive":
+    default:
       return {
-        background: "#D9D9D9",
+        background: "#FFAE2C",
         text: "#FFFFFF",
         subText: "#FFFFFF",
         border: "transparent",
-        disabledBackground: "#e0e0e0",
-        disabledText: "#FFFFFF",
-      };
-    case "secondary":
-    default:
-      return {
-        background: "#e0e0e0",
-        text: "#212121",
-        subText: "#424242",
-        border: "transparent",
-        disabledBackground: "#cfcfcf",
-        disabledText: "#9e9e9e",
+        disabledBackground: "#FFAE2C",
+        disabledText: "#D4BE9F",
       };
   }
 }
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 16,
-    height: 48,
+    borderRadius: 999,
+    height: 52,
     paddingHorizontal: 20,
     marginBottom: 12,
     alignItems: "center",

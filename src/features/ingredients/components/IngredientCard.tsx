@@ -1,22 +1,19 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Ingredient } from '@features/ingredients/types';
-import { Badge } from '@shared/components/badges/Badge';
-import { INGREDIENT_CATEGORY_LABELS } from '@shared/constants/ingredientCategories';
 import { getIngredientIconComponent } from '@/shared/utils/ingredientIcon';
+import { Ingredient } from '@features/ingredients/types';
+import { CircleBadge } from '@shared/components/badges/CircleBadge';
+import { INGREDIENT_CATEGORY_LABELS } from '@shared/constants/ingredientCategories';
 
-type ExpireBadge = {
-  label: string;
-  variant: Parameters<typeof Badge>[0]['variant'];
-};
+type ExpireBadgeVariant = 'fresh' | 'medium' | 'warning';
 
 function resolveCategoryLabel(category?: string) {
   if (!category) return undefined;
   return INGREDIENT_CATEGORY_LABELS[category] ?? category;
 }
 
-function resolveExpireBadge(expiresAt?: string): ExpireBadge | undefined {
+function resolveExpireBadgeVariant(expiresAt?: string): ExpireBadgeVariant | undefined {
   if (!expiresAt) return undefined;
 
   const ddayMatch = /^D([+-]?)(\d+)$/.exec(expiresAt.trim());
@@ -24,10 +21,10 @@ function resolveExpireBadge(expiresAt?: string): ExpireBadge | undefined {
     const sign = ddayMatch[1];
     const value = Number(ddayMatch[2]);
     const days = sign === '+' ? -value : value;
-    return {
-      label: `D${sign || '-'}${value}`,
-      variant: days <= 3 ? 'warning' : 'fresh',
-    };
+    // 3일 이하: 빨강, 4~7일: 주황, 8일 이상: undefined (뱃지 표시 안 함)
+    if (days <= 3) return 'warning';
+    if (days <= 7) return 'medium';
+    return undefined; // 8일 이상은 뱃지 표시 안 함
   }
 
   const targetDate = new Date(expiresAt);
@@ -39,12 +36,10 @@ function resolveExpireBadge(expiresAt?: string): ExpireBadge | undefined {
   const msPerDay = 1000 * 60 * 60 * 24;
   const diff = Math.ceil((targetDate.getTime() - now.getTime()) / msPerDay);
 
-  const isExpired = diff < 0;
-  const label = isExpired ? `D+${Math.abs(diff)}` : `D-${diff}`;
-  return {
-    label,
-    variant: diff <= 7 ? 'warning' : 'fresh',
-  };
+  // 3일 이하: 빨강, 4~7일: 주황, 8일 이상: undefined (뱃지 표시 안 함)
+  if (diff <= 3) return 'warning';
+  if (diff <= 7) return 'medium';
+  return undefined; // 8일 이상은 뱃지 표시 안 함
 }
 
 export type IngredientCardProps = {
@@ -61,21 +56,21 @@ export default function IngredientCard({
   selected = false,
   onPress,
 }: IngredientCardProps) {
-  const badge = resolveExpireBadge(ingredient.expiresAt);
+  const badgeVariant = resolveExpireBadgeVariant(ingredient.expiresAt);
   const IconComponent = getIngredientIconComponent(ingredient);
 
   const content = (
     <>
       <View style={styles.iconWrapper}>
-        {IconComponent ? <IconComponent width={52} height={52} /> : null}
+        {IconComponent ? <IconComponent width={38} height={38} /> : null}
       </View>
       <View style={styles.accessoryWrapper}>
         {accessory ? (
           <View style={styles.accessory}>{accessory}</View>
         ) : (
-          badge && (
+          badgeVariant && (
             <View style={styles.badgeWrapper}>
-              <Badge label={badge.label} variant={badge.variant} />
+              <CircleBadge variant={badgeVariant} size={8} />
             </View>
           )
         )}
@@ -104,15 +99,18 @@ export default function IngredientCard({
 
 const styles = StyleSheet.create({
   container: {
+    width: '100%',
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 16,
+    //borderWidth: 1,
     borderColor: '#DBDBDB',
-    alignItems: 'flex-start',
-    gap: 12,
-    minHeight: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+    //gap: 1,
+    position: 'relative',
   },
   selected: {
     borderColor: '#FF3B30',
@@ -122,13 +120,16 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   iconWrapper: {
-    width: 48,
-    height: 48,
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   accessoryWrapper: {
     position: 'absolute',
-    top: 16,
-    right: 16,
+    top: 10,
+    right: 10,
   },
   accessory: {
     alignItems: 'center',
@@ -138,9 +139,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   name: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
-    color: '#111111',
-    marginLeft: 4,
+    color: '#36383E',
+    textAlign: 'center',
   },
 });

@@ -267,9 +267,15 @@ function resolveExpireBadge(expiresAt?: string) {
     const sign = ddayMatch[1];
     const value = Number(ddayMatch[2]);
     const days = sign === '+' ? -value : value;
+    // 3일 이하: 빨강, 4~7일: 주황, 8일 이상: 초록
+    let variant: 'fresh' | 'medium' | 'warning';
+    if (days <= 3) variant = 'warning';
+    else if (days <= 7) variant = 'medium';
+    else variant = 'fresh';
+    
     return {
       label: `D${sign || '-'}${value}`,
-      variant: days <= 7 ? 'warning' : 'fresh',
+      variant,
     } as const;
   }
 
@@ -287,9 +293,15 @@ function resolveExpireBadge(expiresAt?: string) {
   const isExpired = diff < 0;
   const label = isExpired ? `D+${Math.abs(diff)}` : `D-${diff}`;
 
+  // 3일 이하: 빨강, 4~7일: 주황, 8일 이상: 초록
+  let variant: 'fresh' | 'medium' | 'warning';
+  if (diff <= 3) variant = 'warning';
+  else if (diff <= 7) variant = 'medium';
+  else variant = 'fresh';
+
   return {
     label,
-    variant: diff <= 7 ? 'warning' : 'fresh',
+    variant,
   } as const;
 }
 
