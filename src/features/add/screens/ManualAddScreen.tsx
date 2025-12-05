@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import React from "react";
 import {
   Alert,
@@ -14,9 +14,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import ArrowIcon from "@/assets/images/^.svg";
 import CloseIcon from "@/assets/images/close.svg";
 import CalendarIcon from "@/assets/images/Frame.svg";
+import PlusIcon from "@/assets/images/plus.svg";
 import { createMaterialManual } from "@features/ingredients/services/ingredients.api";
 import ActionButton from "@shared/components/buttons/ActionButton";
 import DatePickerModal from "@shared/components/calendar/DatePickerModal";
+import Header from "@shared/components/navigation/Header";
 import {
   INGREDIENT_CATEGORY_LABELS,
   INGREDIENT_CATEGORY_OPTIONS,
@@ -37,6 +39,7 @@ export default function ManualAddScreen() {
   const formattedToday = formatDate(new Date());
 
   const router = useRouter();
+  const navigation = useNavigation();
 
   const [ingredients, setIngredients] = React.useState<IngredientFormData[]>([
     {
@@ -64,7 +67,7 @@ export default function ManualAddScreen() {
     }));
   };
 
-  const handleAddContainer = () => {
+  const handleAddContainer = React.useCallback(() => {
     const newIngredient: IngredientFormData = {
       id: Date.now().toString(),
       name: "",
@@ -73,8 +76,28 @@ export default function ManualAddScreen() {
       addedDate: today,
       expirationDate: today,
     };
-    setIngredients([...ingredients, newIngredient]);
-  };
+    setIngredients((prev) => [...prev, newIngredient]);
+  }, [today]);
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      header: () => (
+        <Header
+          title="재료 직접 추가하기"
+          showBackButton
+          onBackPress={() => {
+            if (navigation.canGoBack()) {
+              navigation.goBack();
+            }
+          }}
+          rightButton={{
+            icon: PlusIcon,
+            onPress: handleAddContainer,
+          }}
+        />
+      ),
+    });
+  }, [navigation, handleAddContainer]);
 
   const handleRemoveContainer = (id: string) => {
     setIngredients(ingredients.filter((item) => item.id !== id));
@@ -204,21 +227,19 @@ export default function ManualAddScreen() {
   const ingredientCount = ingredients.length;
   const submitButtonLabel = `재료 추가하기 ${ingredientCount}개`;
 
+  // 모든 재료의 이름과 카테고리가 입력되었는지 확인
+  const isFormValid = React.useMemo(() => {
+    return ingredients.every(
+      (ingredient) => ingredient.name.trim() !== "" && ingredient.category !== ""
+    );
+  }, [ingredients]);
+
   const categories = INGREDIENT_CATEGORY_OPTIONS.filter(
     (cat) => cat.value !== "all" && cat.value !== "기타"
   );
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
-      <View style={styles.header}>
-        <ActionButton
-          label="재료 추가"
-          onPress={handleAddContainer}
-          style={styles.addButton}
-          labelStyle={styles.addButtonLabel}
-        />
-      </View>
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -231,7 +252,7 @@ export default function ManualAddScreen() {
               style={styles.removeButton}
               hitSlop={8}
             >
-              <CloseIcon width={20} height={20} />
+              <CloseIcon width={20} height={20} color="#FFAE2C" />
             </Pressable>
 
             <View style={styles.inputGroup}>
@@ -377,8 +398,7 @@ export default function ManualAddScreen() {
         <ActionButton
           label={submitButtonLabel}
           onPress={handleSubmit}
-          style={styles.submitButton}
-          labelStyle={styles.submitButtonLabel}
+          disabled={!isFormValid}
         />
       </View>
 
@@ -405,27 +425,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
-  header: {
-    paddingHorizontal: 32,
-    paddingTop: 24,
-  },
-  addButton: {
-    backgroundColor: "#EEEEEE",
-    marginBottom: 14,
-  },
-  addButtonLabel: {
-    fontWeight: "500",
+  headerAddButton: {
+    padding: 4,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 32,
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 24,
   },
   ingredientContainer: {
-    backgroundColor: "#F0F0F0",
+    backgroundColor: "#FFF8E7",
     borderRadius: 16,
     padding: 24,
     paddingTop: 44,
@@ -518,7 +530,9 @@ const styles = StyleSheet.create({
   },
   durationButton: {
     paddingHorizontal: 16,
-    backgroundColor: "#999999",
+    backgroundColor: "#FFE5B8",
+    borderWidth: 1,
+    borderColor: "#FFAE2C",
     borderRadius: 30,
     paddingVertical: 10,
     alignItems: "center",
@@ -526,7 +540,7 @@ const styles = StyleSheet.create({
   durationButtonText: {
     fontSize: 13,
     fontWeight: "500",
-    color: "#FFFFFF",
+    color: "#FFAE2C",
   },
   removeButton: {
     position: "absolute",
@@ -535,16 +549,9 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   footer: {
-    paddingHorizontal: 32,
-    paddingBottom: 16,
-    paddingTop: 8,
-  },
-  submitButton: {
-    backgroundColor: "#D9D9D9",
-    marginBottom: 0,
-  },
-  submitButtonLabel: {
-    fontWeight: "500",
+    paddingHorizontal: 24,
+    //paddingBottom: 24,
+    paddingTop: 24,
   },
   categoryDropdown: {
     backgroundColor: "#FFFFFF",

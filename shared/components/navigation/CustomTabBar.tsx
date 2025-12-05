@@ -39,9 +39,9 @@ type FloatingAction = {
 };
 
 const ACTIONS: FloatingAction[] = [
-  { key: 'search', label: '재료 검색', route: '/add/select', angleDeg: 210, icon: SearchIcon, tint: '#FF8A65' },
-  { key: 'form', label: '직접 입력', route: '/add/form', angleDeg: 270, icon: EditIcon, tint: '#BA68C8' },
-  { key: 'camera', label: '카메라', route: '/add/camera', angleDeg: 330, icon: CameraIcon, tint: '#64B5F6' },
+  { key: 'search', label: '재료 검색', route: '/add/select', angleDeg: 210, icon: SearchIcon, tint: '#FFAE2C' },
+  { key: 'form', label: '직접 입력', route: '/add/form', angleDeg: 270, icon: EditIcon, tint: '#FFAE2C' },
+  { key: 'camera', label: '카메라', route: '/add/camera', angleDeg: 330, icon: CameraIcon, tint: '#FFAE2C' },
 ];
 
 const ACTION_DISTANCE = Platform.select({ ios: 110, default: 100 });
@@ -173,7 +173,7 @@ export default function CustomTabBar({
 
           <Animated.View style={[styles.fab, { transform: [{ rotate: rotation }] }]}>
             <Pressable onPress={toggleMenu} style={styles.fabPressable}>
-              <PlusIcon width={28} height={28} color={expanded ? palette.tabIconSelected : palette.text} />
+              <PlusIcon width={28} height={28} color={expanded ? '#FFAE2C' : palette.text} />
             </Pressable>
           </Animated.View>
         </View>

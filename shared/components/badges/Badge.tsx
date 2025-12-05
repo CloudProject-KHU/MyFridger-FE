@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-type BadgeVariant = 'fresh' | 'warning' | 'category';
+type BadgeVariant = 'fresh' | 'medium' | 'warning' | 'category';
 
 type BadgeProps = {
   label: string;
@@ -10,11 +10,15 @@ type BadgeProps = {
 
 const COLORS: Record<BadgeVariant, { background: string; text: string }> = {
   fresh: {
-    background: '#5CD27A',
+    background: '#5CD27A', // 초록: 8일 이상
+    text: '#FFFFFF',
+  },
+  medium: {
+    background: '#FFAE2C', // 주황: 4~7일
     text: '#FFFFFF',
   },
   warning: {
-    background: '#FF7474',
+    background: '#FF7474', // 빨강: 3일 이하
     text: '#FFFFFF',
   },
   category: {

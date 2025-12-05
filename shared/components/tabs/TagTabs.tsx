@@ -75,25 +75,25 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 12,
-    gap: 12,
+    gap: 8,
   },
   tab: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 999,
-    borderWidth: 1,
-    borderColor: '#dbdbdb',
-    backgroundColor: '#f5f5f5',
+    //borderWidth: 1,
+    //borderColor: '#e0e0e0',
+    backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
   },
   tabActive: {
-    borderColor: '#111827',
-    backgroundColor: '#111827',
+    borderColor: '#FFAE2C',
+    backgroundColor: '#FFAE2C',
   },
   tabLabel: {
     fontSize: 14,
-    color: '#4b5563',
+    color: '#36383E',
     fontWeight: '500',
   },
   tabLabelActive: {
