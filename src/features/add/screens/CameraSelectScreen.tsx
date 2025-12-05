@@ -110,6 +110,11 @@ export default function CameraSelectScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({
       allowsMultipleSelection: false,
       quality: 0.7,
+      // HEIC 파일을 피하기 위해 JPEG와 PNG만 허용
+      // 서버가 HEIC를 지원하지 않을 수 있으므로
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      // iOS에서 HEIC 대신 JPEG를 반환하도록 강제
+      allowsEditing: false,
     });
 
     if (!result.canceled) {
@@ -118,13 +123,26 @@ export default function CameraSelectScreen() {
         return;
       }
 
+      console.log('앨범에서 선택한 사진 정보:', {
+        uri: asset.uri,
+        type: asset.type,
+        fileName: asset.fileName,
+        width: asset.width,
+        height: asset.height,
+      });
+
       setRecognizedImageUri(asset.uri);
       setCameraOpen(false);
       setIsProcessing(true);
 
       try {
         // OCR API 호출
-        const ingredients = await createMaterialsFromReceipt(asset.uri, asset.fileName || undefined);
+        // asset.type을 전달하여 올바른 MIME 타입 사용
+        const ingredients = await createMaterialsFromReceipt(
+          asset.uri,
+          asset.fileName || undefined,
+          asset.type || undefined,
+        );
         setRecognized(ingredients);
         setSelectedIds(ingredients.map((item) => item.id));
         setIsProcessing(false);
