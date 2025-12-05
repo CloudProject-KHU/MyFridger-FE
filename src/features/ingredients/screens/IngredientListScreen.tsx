@@ -4,7 +4,7 @@ import React from 'react';
 import { Alert, FlatList, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import CarrotIcon from '@/assets/images/carrot.svg';
+import CarrotIcon from '@/assets/images/carrot-happy.svg';
 import DeleteIcon from '@/assets/images/delete.svg';
 import Header from '@/shared/components/navigation/Header';
 import TagTabs from '@/shared/components/tabs/TagTabs';
@@ -156,18 +156,22 @@ export default function IngredientListScreen() {
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
       <Header
         title="나의 냉장고"
-        rightButton={{ icon: DeleteIcon, onPress: handleNavigateToRemove }}
+        rightButton={
+          ingredients.length > 0
+            ? { icon: DeleteIcon, onPress: handleNavigateToRemove }
+            : undefined
+        }
         hideDivider
       />
       <View style={styles.container}>
         {ingredients.length === 0 ? (
           <View style={styles.emptyState}>
             <View style={styles.emptyImageContainer}>
-              <CarrotIcon width={200} height={200} />
+              <CarrotIcon width={180} height={180} />
             </View>
             <Text style={styles.emptyTitle}>냉장고가 비었어요!</Text>
             <Text style={styles.emptyDescription}>
-              냉장고의 재료를 등록하고{'\n'}바로 만들 수 있는 레시피를 확인 해보세요!
+              아래 버튼으로 재료를 추가하고{'\n'}바로 만들 수 있는 레시피를 확인 해보세요!
             </Text>
           </View>
         ) : (
@@ -242,7 +246,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingHorizontal: 32,
-    paddingTop: 80,
+    paddingTop: 120,
   },
   emptyImageContainer: {
     marginBottom: 32,

@@ -3,12 +3,10 @@ import React from 'react';
 import { Alert, FlatList, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { INGREDIENT_CATEGORY_OPTIONS } from '@/shared/constants/ingredientCategories';
 import IngredientCardSelectable from '@features/ingredients/components/IngredientCardSelectable';
 import { Ingredient } from '@features/ingredients/types';
 import ActionButton from '@shared/components/buttons/ActionButton';
 import Header from '@shared/components/navigation/Header';
-import TagTabs from '@shared/components/tabs/TagTabs';
 import {
   fetchIngredients,
   bulkDeleteIngredients,
@@ -25,9 +23,6 @@ export default function IngredientRemoveScreen() {
   const router = useRouter();
   const [ingredients, setIngredients] = React.useState<Ingredient[]>([]);
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
-  const [activeCategory, setActiveCategory] = React.useState(
-    INGREDIENT_CATEGORY_OPTIONS[0].value,
-  );
 
   React.useEffect(() => {
     (async () => {
@@ -49,12 +44,7 @@ export default function IngredientRemoveScreen() {
     });
   }, []);
 
-  const filteredIngredients = React.useMemo(() => {
-    if (activeCategory === 'all') {
-      return ingredients;
-    }
-    return ingredients.filter((ingredient) => ingredient.category === activeCategory);
-  }, [activeCategory, ingredients]);
+  const filteredIngredients = ingredients;
 
   const handleDelete = React.useCallback(() => {
     if (selectedIds.length === 0) return;
@@ -121,13 +111,6 @@ export default function IngredientRemoveScreen() {
         hideDivider
       />
       <View style={styles.container}>
-        <TagTabs
-          options={INGREDIENT_CATEGORY_OPTIONS}
-          activeValue={activeCategory}
-          onChange={setActiveCategory}
-          containerStyle={styles.tabsContainer}
-          contentStyle={styles.tabsContent}
-        />
         <FlatList
           data={filteredIngredients}
           keyExtractor={keyExtractor}
@@ -162,12 +145,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: HORIZONTAL_PADDING,
     paddingVertical: 8,
-  },
-  tabsContainer: {
-    marginBottom: 12,
-  },
-  tabsContent: {
-    paddingHorizontal: 0,
   },
   columnWrapper: {
     justifyContent: 'flex-start',

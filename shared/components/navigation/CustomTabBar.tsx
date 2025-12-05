@@ -14,7 +14,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { SvgProps } from 'react-native-svg';
 
 import CameraIcon from '@/assets/images/camera.svg';
-import EditIcon from '@/assets/images/edit.svg';
 import HomeIcon from '@/assets/images/home.svg';
 import PlusIcon from '@/assets/images/plus.svg';
 import RecipeIcon from '@/assets/images/recipe.svg';
@@ -43,7 +42,6 @@ type FloatingAction = {
 const ACTIONS: FloatingAction[] = [
   { key: 'camera', label: '카메라로 추가하기', route: '/add/camera', angleDeg: 330, icon: CameraIcon, tint: '#FFAE2C' },
   { key: 'search', label: '재료 검색해서 추가하기', route: '/add/select', angleDeg: 210, icon: SearchIcon, tint: '#FFAE2C' },
-  { key: 'form', label: '직접 추가하기', route: '/add/form', angleDeg: 270, icon: EditIcon, tint: '#FFAE2C' },
 ];
 
 
