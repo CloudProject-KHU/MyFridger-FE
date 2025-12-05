@@ -1,4 +1,5 @@
 import { Ingredient, IngredientCategory } from '@features/ingredients/types';
+import { INGREDIENT_ICON_CATEGORIES } from '@shared/constants/ingredientIcons';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://13.124.139.199';
 
@@ -49,11 +50,35 @@ function mapCategory(category?: string): IngredientCategory | undefined {
   return category as IngredientCategory;
 }
 
+// 재료 이름으로 iconId를 찾는 함수
+function findIconIdByName(name: string, category?: string): string | undefined {
+  // 카테고리가 있으면 해당 카테고리에서 먼저 찾기
+  if (category) {
+    const categoryData = INGREDIENT_ICON_CATEGORIES.find((cat) => cat.value === category);
+    if (categoryData) {
+      const item = categoryData.items.find((item) => item.name === name);
+      if (item) return item.id;
+    }
+  }
+
+  // 카테고리 없거나 못 찾았으면 전체에서 찾기
+  for (const categoryData of INGREDIENT_ICON_CATEGORIES) {
+    const item = categoryData.items.find((item) => item.name === name);
+    if (item) return item.id;
+  }
+
+  return undefined;
+}
+
 function mapMaterialToIngredient(material: MaterialResponse): Ingredient {
+  // 재료 이름으로 iconId 찾기
+  const iconId = findIconIdByName(material.name, material.category);
+
   return {
     id: String(material.id),
     name: material.name,
     category: mapCategory(material.category),
+    iconId: iconId,
     quantity: material.quantity,
     addedAt: material.purchased_at,
     expiresOn: material.expired_at,

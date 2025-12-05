@@ -1,8 +1,8 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Ingredient } from '@features/ingredients/types';
 import { getIngredientIconComponent } from '@/shared/utils/ingredientIcon';
+import { Ingredient } from '@features/ingredients/types';
 
 export type IngredientSelectableCardProps = {
   ingredient: Ingredient;
@@ -38,7 +38,7 @@ export default function IngredientSelectableCard({
       ]}
     >
       <View style={styles.iconWrapper}>
-        {IconComponent ? <IconComponent width={52} height={52} /> : null}
+        {IconComponent ? <IconComponent width={48} height={48} /> : null}
       </View>
       <Text style={styles.name} numberOfLines={1}>
         {ingredient.name}

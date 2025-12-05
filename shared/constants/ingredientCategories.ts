@@ -23,5 +23,79 @@ export const INGREDIENT_CATEGORY_LABELS: Record<string, string> = INGREDIENT_CAT
   {} as Record<string, string>,
 );
 
+// 재료 이름을 카테고리로 매핑
+// OCR로 인식된 재료 이름을 자동으로 카테고리에 매핑할 때 사용
+export const INGREDIENT_NAME_TO_CATEGORY: Record<string, string> = {
+  // 채소 (vegetable)
+  '아보카도': 'vegetable',
+  '브로콜리': 'vegetable',
+  '양배추': 'vegetable',
+  '당근': 'vegetable',
+  '고추': 'vegetable',
+  '옥수수': 'vegetable',
+  '가지': 'vegetable',
+  '상추': 'vegetable',
+  '버섯': 'vegetable',
+  '양파': 'vegetable',
+  '감자': 'vegetable',
+  '호박': 'vegetable',
+  '무': 'vegetable',
+  '고구마': 'vegetable',
+  '토마토': 'vegetable',
+  '애호박': 'vegetable',
+  '마늘': 'vegetable',
+  '김치': 'vegetable',
+  
+  // 과일 (fruit)
+  '사과': 'fruit',
+  '바나나': 'fruit',
+  '포도': 'fruit',
+  '키위': 'fruit',
+  '레몬': 'fruit',
+  '망고': 'fruit',
+  '멜론': 'fruit',
+  '오렌지': 'fruit',
+  '복숭아': 'fruit',
+  '배': 'fruit',
+  '파인애플': 'fruit',
+  '딸기': 'fruit',
+  '수박': 'fruit',
+  
+  // 고기류 (meat)
+  '소고기': 'meat',
+  '닭고기': 'meat',
+  '오리고기': 'meat',
+  '양고기': 'meat',
+  '돼지고기': 'meat',
+  '소시지': 'meat',
+  
+  // 해산물 (seafood)
+  '조개': 'seafood',
+  '게': 'seafood',
+  '생선': 'seafood',
+  '랍스터': 'seafood',
+  '미역': 'seafood',
+  '새우': 'seafood',
+  '오징어': 'seafood',
+  
+  // 유제품/가공 (dairy_processed)
+  '버터': 'dairy_processed',
+  '치즈': 'dairy_processed',
+  '달걀': 'dairy_processed',
+  '우유': 'dairy_processed',
+  '두부': 'dairy_processed',
+  '만두': 'dairy_processed',
+  
+  // 양념/조미료 (seasoning)
+  '케첩': 'seasoning',
+  '머스터드': 'seasoning',
+  '소금': 'seasoning',
+  '참기름': 'seasoning',
+  '간장': 'seasoning',
+  '설탕': 'seasoning',
+};
 
-
+// 재료 이름으로 카테고리를 찾는 헬퍼 함수
+export function getCategoryByIngredientName(name: string): string | undefined {
+  return INGREDIENT_NAME_TO_CATEGORY[name];
+}
