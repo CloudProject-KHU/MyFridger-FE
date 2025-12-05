@@ -99,3 +99,80 @@ export const INGREDIENT_NAME_TO_CATEGORY: Record<string, string> = {
 export function getCategoryByIngredientName(name: string): string | undefined {
   return INGREDIENT_NAME_TO_CATEGORY[name];
 }
+
+// 재료 이름을 유통기한(일수)로 매핑
+// 집밥(homemade)과 기타(etc)는 제외
+export const INGREDIENT_NAME_TO_EXPIRY_DAYS: Record<string, number> = {
+  // 채소 (vegetable)
+  '아보카도': 5,
+  '브로콜리': 7,
+  '양배추': 14,
+  '당근': 21,
+  '고추': 10,
+  '옥수수': 3,
+  '가지': 7,
+  '상추': 5,
+  '버섯': 7,
+  '양파': 30,
+  '감자': 60,
+  '호박': 14,
+  '무': 14,
+  '고구마': 30,
+  '토마토': 7,
+  '애호박': 7,
+  '마늘': 30,
+  '김치': 30,
+
+  // 과일 (fruit)
+  '사과': 30,
+  '바나나': 5,
+  '포도': 7,
+  '키위': 14,
+  '레몬': 21,
+  '망고': 7,
+  '멜론': 7,
+  '오렌지': 14,
+  '복숭아': 5,
+  '배': 14,
+  '파인애플': 5,
+  '딸기': 5,
+  '수박': 7,
+
+  // 고기류 (meat) - 냉장 기준
+  '소고기': 3,
+  '닭고기': 2,
+  '오리고기': 2,
+  '양고기': 3,
+  '돼지고기': 3,
+  '소시지': 7,
+
+  // 해산물 (seafood)
+  '조개': 1,
+  '게': 2,
+  '생선': 2,
+  '랍스터': 2,
+  '미역': 30,
+  '새우': 2,
+  '오징어': 2,
+
+  // 유제품/가공 (dairy_processed)
+  '버터': 60,
+  '치즈': 30,
+  '달걀': 21,
+  '우유': 7,
+  '두부': 7,
+  '만두': 30,
+
+  // 양념/조미료 (seasoning)
+  '케첩': 90,
+  '머스터드': 90,
+  '소금': 365,
+  '참기름': 90,
+  '간장': 180,
+  '설탕': 365,
+};
+
+// 재료 이름으로 유통기한 일수를 찾는 헬퍼 함수
+export function getExpiryDaysByIngredientName(name: string): number | undefined {
+  return INGREDIENT_NAME_TO_EXPIRY_DAYS[name];
+}
