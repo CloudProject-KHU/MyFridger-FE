@@ -10,15 +10,9 @@ export default function SettingsScreen() {
   const router = useRouter();
   const { notificationsEnabled, toggleNotifications } = useSettingsStore();
 
-  const handleBackPress = React.useCallback(() => {
-    if (router.canGoBack()) {
-      router.back();
-    }
-  }, [router]);
-
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <Header title="설정" showBackButton onBackPress={handleBackPress} hideDivider />
+      <Header title="설정" hideDivider />
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.row}>
           <Text style={styles.label}>알림 받기</Text>

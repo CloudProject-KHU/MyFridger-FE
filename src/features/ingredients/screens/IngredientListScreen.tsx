@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import CarrotIcon from '@/assets/images/carrot.svg';
 import DeleteIcon from '@/assets/images/delete.svg';
-import SettingIcon from '@/assets/images/setting.svg';
 import Header from '@/shared/components/navigation/Header';
 import TagTabs from '@/shared/components/tabs/TagTabs';
 import { INGREDIENT_CATEGORY_OPTIONS } from '@/shared/constants/ingredientCategories';
@@ -157,7 +156,6 @@ export default function IngredientListScreen() {
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
       <Header
         title="나의 냉장고"
-        leftButton={{ icon: SettingIcon, onPress: handleNavigateToSettings }}
         rightButton={{ icon: DeleteIcon, onPress: handleNavigateToRemove }}
         hideDivider
       />
@@ -169,7 +167,7 @@ export default function IngredientListScreen() {
             </View>
             <Text style={styles.emptyTitle}>냉장고가 비었어요!</Text>
             <Text style={styles.emptyDescription}>
-              아래 + 버튼으로 재료를 등록하고{'\n'}바로 만들 수 있는 레시피를 확인 해보세요!
+              냉장고의 재료를 등록하고{'\n'}바로 만들 수 있는 레시피를 확인 해보세요!
             </Text>
           </View>
         ) : (
@@ -244,7 +242,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingHorizontal: 32,
-    paddingTop: 120,
+    paddingTop: 80,
   },
   emptyImageContainer: {
     marginBottom: 32,
