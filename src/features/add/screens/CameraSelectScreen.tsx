@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ReceiptIcon from '@/assets/images/receipt.svg';
 import IngredientSelectableCard from '@features/add/components/IngredientSelectableCard';
+import { bulkDeleteIngredients, createMaterialsFromReceipt } from '@features/ingredients/services/ingredients.api';
 import { Ingredient } from '@features/ingredients/types';
 import { requestCameraPermissionsAsync } from '@shared/camera/camera';
 import ActionButton from '@shared/components/buttons/ActionButton';
@@ -24,17 +25,6 @@ import * as ImagePicker from 'expo-image-picker';
 const CARD_COLUMNS = 4;
 const CARD_GAP = 10;
 const HORIZONTAL_PADDING = 16;
-
-const SAMPLE_RECOGNIZED: Ingredient[] = [
-  { id: 'ocr-1', name: '간장', category: 'seasoning', iconId: 'soy_sauce' },
-  { id: 'ocr-2', name: '양파', category: 'vegetable', iconId: 'onion' },
-  { id: 'ocr-3', name: '우유', category: 'dairy_processed', iconId: 'milk' },
-  { id: 'ocr-4', name: '상추', category: 'vegetable', iconId: 'lettuce' },
-  { id: 'ocr-5', name: '돼지고기', category: 'meat', iconId: 'pork' },
-  { id: 'ocr-6', name: '새우', category: 'seafood', iconId: 'shrimp' },
-  { id: 'ocr-7', name: '치즈', category: 'dairy_processed', iconId: 'cheese' },
-  { id: 'ocr-8', name: '사과', category: 'fruit', iconId: 'apple' },
-];
 
 const keyExtractor = (item: Ingredient) => item.id;
 
@@ -47,6 +37,7 @@ export default function CameraSelectScreen() {
   const [recognizedImageUri, setRecognizedImageUri] = React.useState<string | null>(null);
   const [recognized, setRecognized] = React.useState<Ingredient[]>([]);
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  const [isProcessing, setIsProcessing] = React.useState(false);
   const cameraRef = React.useRef<CameraView>(null);
 
   const hasRecognized = recognized.length > 0;
@@ -75,16 +66,35 @@ export default function CameraSelectScreen() {
       if (!cameraRef.current) {
         return;
       }
-      // 실사용에서는 takePictureAsync 결과를 OCR에 전달
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
-      setRecognizedImageUri(photo?.uri ?? null);
-      setRecognized(SAMPLE_RECOGNIZED);
-      setSelectedIds(SAMPLE_RECOGNIZED.map((item) => item.id));
+      if (!photo?.uri) {
+        Alert.alert('촬영에 실패했습니다', '다시 시도해 주세요.');
+        return;
+      }
+
+      console.log('촬영된 사진 정보:', {
+        uri: photo.uri,
+        width: photo.width,
+        height: photo.height,
+      });
+
+      setRecognizedImageUri(photo.uri);
       setCameraOpen(false);
+      setIsProcessing(true);
+
+      // OCR API 호출
+      const ingredients = await createMaterialsFromReceipt(photo.uri);
+      setRecognized(ingredients);
+      setSelectedIds(ingredients.map((item) => item.id));
+      setIsProcessing(false);
       setResultModalOpen(true);
-    } catch (error) {
-      console.error(error);
-      Alert.alert('촬영에 실패했습니다', '다시 시도해 주세요.');
+    } catch (error: any) {
+      console.error('OCR 처리 실패:', error);
+      setIsProcessing(false);
+      Alert.alert(
+        '영수증 인식 실패',
+        error?.message || '영수증을 인식하는 중 문제가 발생했습니다. 다시 시도해 주세요.',
+      );
     }
   };
 
@@ -104,11 +114,29 @@ export default function CameraSelectScreen() {
 
     if (!result.canceled) {
       const asset = result.assets?.[0];
-      setRecognizedImageUri(asset?.uri ?? null);
-      setRecognized(SAMPLE_RECOGNIZED.slice(0, 4));
-      setSelectedIds(SAMPLE_RECOGNIZED.slice(0, 4).map((item) => item.id));
+      if (!asset?.uri) {
+        return;
+      }
+
+      setRecognizedImageUri(asset.uri);
       setCameraOpen(false);
-      setResultModalOpen(true);
+      setIsProcessing(true);
+
+      try {
+        // OCR API 호출
+        const ingredients = await createMaterialsFromReceipt(asset.uri, asset.fileName || undefined);
+        setRecognized(ingredients);
+        setSelectedIds(ingredients.map((item) => item.id));
+        setIsProcessing(false);
+        setResultModalOpen(true);
+      } catch (error: any) {
+        console.error('OCR 처리 실패:', error);
+        setIsProcessing(false);
+        Alert.alert(
+          '영수증 인식 실패',
+          error?.message || '영수증을 인식하는 중 문제가 발생했습니다. 다시 시도해 주세요.',
+        );
+      }
     }
   };
 
@@ -192,10 +220,43 @@ export default function CameraSelectScreen() {
       <ActionButton
         label={selectedCount > 0 ? `재료 추가하기 ${selectedCount}개` : '재료 추가하기'}
         tone="primary"
-        disabled={selectedCount === 0}
+        disabled={selectedCount === 0 || isProcessing}
         style={styles.actionButton}
-        onPress={() => {
-          // TODO: 선택된 재료를 저장 로직과 연결
+        onPress={async () => {
+          if (selectedCount === 0) return;
+          
+          try {
+            // OCR API가 이미 모든 재료를 서버에 등록했으므로
+            // 선택되지 않은 재료들을 삭제
+            const unselectedIngredients = recognized.filter(
+              (item) => !selectedIds.includes(item.id),
+            );
+            
+            if (unselectedIngredients.length > 0) {
+              try {
+                await bulkDeleteIngredients(unselectedIngredients.map((item) => item.id));
+              } catch (deleteError) {
+                console.error('선택되지 않은 재료 삭제 실패:', deleteError);
+                // 삭제 실패해도 계속 진행
+              }
+            }
+
+            Alert.alert('추가 완료', `${selectedCount}개의 재료가 추가되었습니다.`, [
+              {
+                text: '확인',
+                onPress: () => {
+                  // 상태 초기화
+                  setRecognized([]);
+                  setSelectedIds([]);
+                  setRecognizedImageUri(null);
+                  setResultModalOpen(false);
+                },
+              },
+            ]);
+          } catch (error: any) {
+            console.error('재료 추가 처리 실패:', error);
+            Alert.alert('오류', '재료 추가 중 문제가 발생했습니다.');
+          }
         }}
       />
 
@@ -233,6 +294,23 @@ export default function CameraSelectScreen() {
               <View style={styles.shutterInner} />
             </Pressable>
             <View style={styles.toolbarSpacer} />
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={isProcessing} transparent animationType="fade">
+        <View style={styles.resultOverlay}>
+          <View style={styles.resultContainer}>
+            <View style={styles.resultBanner}>
+              <Text style={styles.resultBannerTitle}>영수증을 분석 중입니다...</Text>
+              <Text style={styles.resultBannerSubtitle}>
+                잠시만 기다려 주세요.
+              </Text>
+            </View>
+            <View style={[styles.resultImage, styles.resultPlaceholder]}>
+              <ReceiptIcon width={56} height={56} />
+              <Text style={styles.resultPlaceholderText}>처리 중</Text>
+            </View>
           </View>
         </View>
       </Modal>
