@@ -1,3 +1,9 @@
+/**
+ * 재료 아이콘 컴포넌트 유틸리티
+ * - 재료 정보로부터 적절한 아이콘 컴포넌트 반환
+ * - iconId가 있으면 해당 아이콘, 없으면 카테고리 기본 아이콘 사용
+ */
+
 import { INGREDIENT_ICON_COMPONENTS } from '@/shared/constants/ingredientIconComponents';
 import { INGREDIENT_ICON_CATEGORY_MAP } from '@/shared/constants/ingredientIcons';
 import type { Ingredient } from '@features/ingredients/types';

@@ -120,7 +120,7 @@ export default function CustomTabBar({
               onPress={onPress}
               style={styles.tabButton}
             >
-              <IconComponent width={28} height={28} color={color} />
+              <IconComponent width={32} height={32} color={color} />
             </Pressable>
           );
         })}
@@ -129,7 +129,7 @@ export default function CustomTabBar({
             <View style={styles.fabContainer}>
               <Pressable onPress={toggleMenu} style={styles.fabPressable}>
                 <View style={styles.fab}>
-                  <PlusIcon width={20} height={20} color="#FFFFFF" />
+                  <PlusIcon width={22} height={22} color="#FFFFFF" />
                   <Text style={styles.fabText}>재료 추가</Text>
                 </View>
               </Pressable>
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 36,
+    paddingHorizontal: 40,
     minHeight: 40,
     width: '100%',
   },
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   },
   fabContainer: {
     position: 'absolute',
-    top: -80,
+    top: -70,
     left: 0,
     right: 0,
     alignItems: 'center',
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   },
   fabText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#FFFFFF',
   },
   modalBackdrop: {
