@@ -4,6 +4,7 @@
  * - 재료 수동 추가 (POST /materials/manual)
  * - 영수증 OCR로 재료 추가 (POST /materials/receipt)
  * - 재료 삭제 (DELETE /materials/{id})
+ * - 유통기한 추정 (POST /recommends/expire)
  * - API 응답을 프론트엔드 타입으로 변환
  */
 
@@ -348,5 +349,63 @@ export async function createMaterialsFromReceipt(
 
   const data = (await response.json()) as MaterialResponse[];
   return data.map(mapMaterialToIngredient);
+}
+
+// ---- 유통기한 추정 (/recommends/expire) ----
+
+export type EstimateExpiryRequest = {
+  name: string;
+  category: string;
+  purchased_at: string; // ISO 8601 형식
+};
+
+export type EstimateExpiryResponse = {
+  estimated_expiration_date: string; // ISO 8601 형식
+  confidence: number; // 0.0 ~ 1.0
+  notes: string; // 추정 근거 및 보관 팁
+};
+
+export async function estimateExpiryDate(
+  payload: EstimateExpiryRequest,
+  useAi: boolean = true,
+): Promise<EstimateExpiryResponse> {
+  const url = `${API_BASE_URL}/recommends/expire?use_ai=${useAi}`;
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    let message = `유통기한 추정 실패 (${response.status})`;
+    try {
+      const errorData = await response.json();
+      const anyData = errorData as any;
+      if (typeof anyData?.message === 'string') {
+        message = anyData.message;
+      } else if (typeof anyData?.detail === 'string') {
+        message = anyData.detail;
+      } else if (Array.isArray(anyData?.detail)) {
+        // FastAPI 스타일의 validation error
+        const first = anyData.detail[0];
+        if (first) {
+          const loc = Array.isArray(first.loc) ? first.loc.join('.') : first.loc;
+          const msg = first.msg ?? JSON.stringify(first);
+          message = `${loc}: ${msg}`;
+        }
+      } else {
+        message = JSON.stringify(anyData);
+      }
+    } catch {
+      // ignore
+    }
+    throw new Error(message);
+  }
+
+  const data = (await response.json()) as EstimateExpiryResponse;
+  return data;
 }
 
