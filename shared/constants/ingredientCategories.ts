@@ -202,7 +202,7 @@ function guessCategoryByKeyword(name: string): string {
   // 양념/조미료 (seasoning)
   if (nameLower.includes('간장') || nameLower.includes('소금') || nameLower.includes('설탕') || nameLower.includes('참기름') || nameLower.includes('고추장') || nameLower.includes('된장') || nameLower.includes('청국장') ||
       nameLower.includes('후추') || nameLower.includes('고춧가루') || nameLower.includes('굴소스') || nameLower.includes('마요네즈') || nameLower.includes('스리라차') || 
-      nameLower.includes('고춧기름') || nameLower.includes('참깨') || nameLower.includes('카레가루') || nameLower.includes('식초')) {
+      nameLower.includes('고춧기름') || nameLower.includes('참깨') || nameLower.includes('검은깨') || nameLower.includes('깨') || nameLower.includes('카레가루') || nameLower.includes('식초')) {
     return 'seasoning';
   }
   

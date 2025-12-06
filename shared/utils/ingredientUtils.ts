@@ -8,29 +8,32 @@ import { INGREDIENT_ICON_CATEGORIES } from '@shared/constants/ingredientIcons';
 
 /**
  * 재료 이름에서 이름과 용량을 파싱
- * @param materialName 예: "두부 120g(1/3모)" 또는 "냉스프"
+ * @param materialName 예: "두부 120g(1/3모)" 또는 "다진 마늘 2g(1/3작은술)" 또는 "냉스프"
  * @returns { name: string, amount?: string }
  * 
  * @example
  * parseMaterialName("두부 120g(1/3모)") // { name: "두부", amount: "120g(1/3모)" }
+ * parseMaterialName("다진 마늘 2g(1/3작은술)") // { name: "다진 마늘", amount: "2g(1/3작은술)" }
  * parseMaterialName("냉스프") // { name: "냉스프", amount: undefined }
  */
 export function parseMaterialName(materialName: string): { name: string; amount?: string } {
-  // 숫자나 괄호가 포함된 경우 용량으로 간주
-  const hasAmount = /\d|\(|g|ml|개|컵|큰술|작은술/.test(materialName);
+  // 용량 패턴: 숫자로 시작하거나 괄호, g, ml, 개, 컵, 큰술, 작은술 등이 포함된 부분
+  // 용량은 보통 숫자로 시작하거나 괄호로 시작함
+  const amountPattern = /(\d|\(|g|ml|개|컵|큰술|작은술)/;
+  const amountMatch = materialName.match(amountPattern);
   
-  if (hasAmount) {
-    // 공백으로 분리 시도
-    const parts = materialName.split(/\s+/);
-    if (parts.length >= 2) {
-      const name = parts[0];
-      const amount = parts.slice(1).join(' ');
+  if (amountMatch && amountMatch.index !== undefined) {
+    // 용량 패턴이 발견되면 그 위치를 기준으로 분리
+    const name = materialName.substring(0, amountMatch.index).trim();
+    const amount = materialName.substring(amountMatch.index).trim();
+    
+    // 이름이 비어있지 않으면 반환
+    if (name) {
       return { name, amount };
     }
-    // 공백이 없으면 전체를 이름으로
-    return { name: materialName };
   }
   
+  // 용량 패턴이 없거나 이름이 비어있으면 전체를 이름으로
   return { name: materialName };
 }
 

@@ -112,7 +112,7 @@ function getToneColors(tone: ActionButtonTone, palette: Palette) {
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 999,
+    borderRadius: 16,
     height: 52,
     paddingHorizontal: 20,
     marginBottom: 12,
@@ -124,8 +124,8 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
   },
   label: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 17,
+    fontWeight: "700",
   },
   subLabel: {
     marginTop: 4,

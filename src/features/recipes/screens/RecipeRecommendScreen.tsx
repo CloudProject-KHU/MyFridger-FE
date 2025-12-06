@@ -3,7 +3,6 @@ import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-import FilterIcon from '@/assets/images/filter.svg';
 import Header from '@/shared/components/navigation/Header';
 
 type Recipe = {
@@ -46,10 +45,6 @@ const keyExtractor = (item: Recipe) => item.id;
 export default function RecipeRecommendScreen() {
   const router = useRouter();
 
-  const handleFilterPress = React.useCallback(() => {
-    // TODO: 필터 기능 구현
-  }, []);
-
   const handleCardPress = React.useCallback(
     (recipeId: string) => {
       router.push(`/recipes/${recipeId}` as never);
@@ -78,7 +73,6 @@ export default function RecipeRecommendScreen() {
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
       <Header
         title="냉장고 레시피"
-        rightButton={{ icon: FilterIcon, onPress: handleFilterPress }}
         hideDivider
       />
       <FlatList
