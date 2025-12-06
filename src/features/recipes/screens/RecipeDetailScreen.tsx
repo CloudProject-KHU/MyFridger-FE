@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import SquareCheckIcon from '@/assets/images/square-check.svg';
 import { Badge } from '@/shared/components/badges/Badge';
+import ActionButton from '@/shared/components/buttons/ActionButton';
 import QuantityControl from '@/shared/components/inputs/QuantityControl';
 import Header from '@/shared/components/navigation/Header';
 import { getIngredientIconComponent } from '@/shared/utils/ingredientIcon';
@@ -189,7 +189,7 @@ export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   // 테스트를 위해 ID를 39로 고정
-  const recipeId = '39'; // id || '39';
+  const recipeId = '36'; // id || '39';
   const [recipe, setRecipe] = useState<RecipeDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -221,7 +221,7 @@ export default function RecipeDetailScreen() {
     loadRecipe();
   }, [recipeId]);
 
-  // 재료 차감 아이템 초기화 (식재료만, 조미료 제외)
+  // 재료 차감 아이템 초기화 (식재료만, 조미료 제외, 재고가 있는 재료만)
   const initialDeductionItems = useMemo<DeductionItem[]>(() => {
     if (!recipe) return [];
     return recipe.items
@@ -237,7 +237,8 @@ export default function RecipeDetailScreen() {
           used: 1,
           selected: true,
         };
-      });
+      })
+      .filter((item) => item.stock > 0); // 재고가 있는 재료만 표시
   }, [recipe?.items]);
 
   const [deductionItems, setDeductionItems] = useState<DeductionItem[]>(initialDeductionItems);
@@ -421,10 +422,12 @@ export default function RecipeDetailScreen() {
         </View>
       </ScrollView>
       <View style={styles.bottomAction}>
-        <Pressable style={styles.startButton} onPress={handleCompletePress}>
-          <Text style={styles.startButtonEmoji}>🍳</Text>
-          <Text style={styles.startButtonText}>요리 시작하기</Text>
-        </Pressable>
+        <ActionButton
+          label="🍳 요리 완료하기"
+          onPress={handleCompletePress}
+          tone="primary"
+          fullWidth={true}
+        />
       </View>
 
       {/* 재료 차감 모달 */}
@@ -439,61 +442,39 @@ export default function RecipeDetailScreen() {
             <Text style={styles.modalTitle}>재료 차감 확인</Text>
             <Text style={styles.modalDescription}>다음 재료를 냉장고에서 차감할까요?</Text>
 
-            {/* 경고 메시지 */}
-            {hasInsufficient && (
-              <View style={styles.warningBox}>
-                <Text style={styles.warningText}>⚠️ 일부 재료의 재고가 부족합니다</Text>
-              </View>
-            )}
-
             {/* 재료 리스트 */}
             <View style={styles.modalIngredientList}>
               {deductionItems.map((item) => {
-                const isInsufficient = item.selected && item.used > item.stock;
-                const IconComponent = getIngredientIconComponent({
-                  iconId: item.iconId,
-                  category: item.category,
-                } as Ingredient);
+                  const IconComponent = getIngredientIconComponent({
+                    iconId: item.iconId,
+                    category: item.category,
+                  } as Ingredient);
 
-                return (
-                  <View key={item.id} style={styles.modalIngredientItem}>
-                    <View style={styles.modalIngredientLeft}>
-                      <Pressable
-                        onPress={() => handleToggleItem(item.id)}
-                        style={styles.modalCheckboxContainer}
-                      >
-                        {item.selected ? (
-                          <SquareCheckIcon width={20} height={20} color="#FFAE2C" />
-                        ) : (
-                          <View style={styles.modalCheckboxUnchecked} />
-                        )}
-                      </Pressable>
+                  return (
+                    <Pressable
+                      key={item.id}
+                      onPress={() => handleToggleItem(item.id)}
+                      style={[
+                        styles.modalIngredientCard,
+                        item.selected && styles.modalIngredientCardSelected,
+                      ]}
+                    >
                       {IconComponent && (
-                        <View style={styles.modalItemIconContainer}>
-                          <IconComponent width={32} height={32} />
+                        <View style={styles.modalCardIconContainer}>
+                          <IconComponent width={40} height={40} />
                         </View>
                       )}
-                      <View style={styles.modalItemInfo}>
-                        <Text style={styles.modalItemName}>{item.name}</Text>
-                        <Text
-                          style={[
-                            styles.modalItemStock,
-                            isInsufficient && styles.modalItemStockWarning,
-                          ]}
-                        >
-                          재고 {item.stock}개
-                        </Text>
-                      </View>
-                    </View>
-                    <QuantityControl
-                      value={item.used}
-                      onChange={(newValue) => handleChangeQuantity(item.id, newValue)}
-                      min={1}
-                      max={item.stock}
-                    />
-                  </View>
-                );
-              })}
+                      <Text style={styles.modalCardItemName}>{item.name}</Text>
+                      <QuantityControl
+                        value={item.used}
+                        onChange={(newValue) => handleChangeQuantity(item.id, newValue)}
+                        min={1}
+                        max={item.stock}
+                        disabled={!item.selected}
+                      />
+                    </Pressable>
+                  );
+                })}
             </View>
 
             <View style={styles.modalButtons}>
@@ -502,8 +483,7 @@ export default function RecipeDetailScreen() {
               </Pressable>
               <Pressable
                 onPress={handleDeduct}
-                disabled={!canDeduct}
-                style={[styles.modalBtnConfirm, !canDeduct && styles.modalBtnDisabled]}
+                style={styles.modalBtnConfirm}
               >
                 <Text style={styles.modalBtnConfirmText}>차감하기</Text>
               </Pressable>
@@ -691,28 +671,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
   },
-  startButton: {
-    width: '100%',
-    backgroundColor: '#FFAE2C',
-    borderRadius: 16,
-    padding: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  startButtonEmoji: {
-    fontSize: 20,
-  },
-  startButtonText: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
   // 모달 스타일
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -734,83 +696,52 @@ const styles = StyleSheet.create({
   },
   modalDescription: {
     fontSize: 14,
-    color: '#999',
-    marginBottom: 24,
+    color: '#666',
+    marginBottom: 20,
     textAlign: 'center',
   },
-  warningBox: {
-    backgroundColor: '#FFF3E0',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  warningText: {
-    fontSize: 13,
-    color: '#E65100',
-  },
   modalIngredientList: {
-    marginBottom: 20,
+    marginBottom: 24,
+    gap: 12,
   },
-  modalIngredientItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  modalIngredientLeft: {
+  modalIngredientCard: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    flex: 1,
   },
-  modalCheckboxContainer: {
-    width: 20,
-    height: 20,
+  modalIngredientCardSelected: {
+    backgroundColor: '#FFF8F0',
+    borderWidth: 1,
+    borderColor: '#FFAE2C',
+  },
+  modalCardIconContainer: {
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalCheckboxUnchecked: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#E0E0E0',
-  },
-  modalItemIconContainer: {
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalItemInfo: {
+  modalCardItemName: {
     flex: 1,
-  },
-  modalItemName: {
     fontSize: 15,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 2,
-  },
-  modalItemStock: {
-    fontSize: 12,
-    color: '#999',
-  },
-  modalItemStockWarning: {
-    color: '#FF6B6B',
   },
   modalButtons: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 12,
   },
   modalBtnCancel: {
     flex: 1,
-    padding: 14,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 999,
+    padding: 16,
+    backgroundColor: 'white',
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
   modalBtnCancelText: {
     fontSize: 15,
@@ -819,9 +750,9 @@ const styles = StyleSheet.create({
   },
   modalBtnConfirm: {
     flex: 1,
-    padding: 14,
+    padding: 16,
     backgroundColor: '#FFAE2C',
-    borderRadius: 999,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
