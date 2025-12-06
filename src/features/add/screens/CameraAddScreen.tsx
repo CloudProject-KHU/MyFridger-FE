@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CameraIcon from '@/assets/images/camera.svg';
 import CarrotSadIcon from '@/assets/images/carrot-sad.svg';
 import IngredientSelectableCard from '@features/add/components/IngredientSelectableCard';
-import { bulkDeleteIngredients } from '@features/ingredients/services/ingredients.api';
+import { bulkDeleteIngredients, createMaterialsFromReceipt } from '@features/ingredients/services/ingredients.api';
 import { Ingredient } from '@features/ingredients/types';
 import { requestCameraPermissionsAsync } from '@shared/camera/camera';
 import ActionButton from '@shared/components/buttons/ActionButton';
@@ -83,61 +83,8 @@ export default function CameraAddScreen() {
       setCameraOpen(false);
       setIsProcessing(true);
 
-      // TODO: 더미 데이터 - 실제 OCR API로 교체 필요
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // 로딩 시뮬레이션
-      const ingredients: Ingredient[] = [
-        {
-          id: '1',
-          name: '아보카도',
-          category: 'vegetable',
-          iconId: 'avocado',
-          quantity: 2,
-          addedAt: new Date().toISOString(),
-          expiresOn: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        },
-        {
-          id: '2',
-          name: '브로콜리',
-          category: 'vegetable',
-          iconId: 'broccoli',
-          quantity: 1,
-          addedAt: new Date().toISOString(),
-          expiresOn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        },
-        {
-          id: '3',
-          name: '당근',
-          category: 'vegetable',
-          iconId: 'carrot',
-          quantity: 3,
-          addedAt: new Date().toISOString(),
-          expiresOn: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          expiresAt: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        },
-        {
-          id: '4',
-          name: '사과',
-          category: 'fruit',
-          iconId: 'apple',
-          quantity: 5,
-          addedAt: new Date().toISOString(),
-          expiresOn: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        },
-        {
-          id: '5',
-          name: '닭고기',
-          category: 'meat',
-          iconId: 'chicken',
-          quantity: 1,
-          addedAt: new Date().toISOString(),
-          expiresOn: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          expiresAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        },
-      ];
-      // const ingredients = await createMaterialsFromReceipt(photo.uri);
+      // OCR API 호출
+      const ingredients = await createMaterialsFromReceipt(photo.uri);
       setRecognized(ingredients);
       setSelectedIds(ingredients.map((item) => item.id));
       setIsProcessing(false);
@@ -190,65 +137,13 @@ export default function CameraAddScreen() {
       setIsProcessing(true);
 
       try {
-        // TODO: 더미 데이터 - 실제 OCR API로 교체 필요
-        await new Promise((resolve) => setTimeout(resolve, 1500)); // 로딩 시뮬레이션
-        const ingredients: Ingredient[] = [
-          {
-            id: '1',
-            name: '아보카도',
-            category: 'vegetable',
-            iconId: 'avocado',
-            quantity: 2,
-            addedAt: new Date().toISOString(),
-            expiresOn: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          },
-          {
-            id: '2',
-            name: '브로콜리',
-            category: 'vegetable',
-            iconId: 'broccoli',
-            quantity: 1,
-            addedAt: new Date().toISOString(),
-            expiresOn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          },
-          {
-            id: '3',
-            name: '당근',
-            category: 'vegetable',
-            iconId: 'carrot',
-            quantity: 3,
-            addedAt: new Date().toISOString(),
-            expiresOn: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            expiresAt: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          },
-          {
-            id: '4',
-            name: '사과',
-            category: 'fruit',
-            iconId: 'apple',
-            quantity: 5,
-            addedAt: new Date().toISOString(),
-            expiresOn: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          },
-          {
-            id: '5',
-            name: '닭고기',
-            category: 'meat',
-            iconId: 'chicken',
-            quantity: 1,
-            addedAt: new Date().toISOString(),
-            expiresOn: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            expiresAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          },
-        ];
-        // const ingredients = await createMaterialsFromReceipt(
-        //   asset.uri,
-        //   asset.fileName || undefined,
-        //   asset.type || undefined,
-        // );
+        // OCR API 호출
+        // asset.type을 전달하여 올바른 MIME 타입 사용
+        const ingredients = await createMaterialsFromReceipt(
+          asset.uri,
+          asset.fileName || undefined,
+          asset.type || undefined,
+        );
         setRecognized(ingredients);
         setSelectedIds(ingredients.map((item) => item.id));
         setIsProcessing(false);
