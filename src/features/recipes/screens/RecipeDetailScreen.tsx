@@ -736,12 +736,10 @@ const styles = StyleSheet.create({
   modalBtnCancel: {
     flex: 1,
     padding: 16,
-    backgroundColor: 'white',
+    backgroundColor: '#F5F5F5',
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
   },
   modalBtnCancelText: {
     fontSize: 15,
