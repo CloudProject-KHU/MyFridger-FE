@@ -207,7 +207,7 @@ export default function CameraAddScreen() {
           <View style={styles.recognizedHeader}>
             <Text style={styles.recognizedTitle}>인식된 식재료</Text>
             <Text style={styles.recognizedHint}>
-              인식되지 않은 식재료는 직접 추가 기능으로 추가해주세요.
+              인식되지 않은 식재료는 직접 추가로 추가해주세요.
             </Text>
           </View>
         </View>
@@ -229,7 +229,7 @@ export default function CameraAddScreen() {
           ) : (
             <View style={styles.emptyState}>
               <View style={styles.emptyImageContainer}>
-                <CarrotSadIcon width={120} height={120} />
+                <CarrotSadIcon width={140} height={140} />
               </View>
               <Text style={styles.emptyTitle}>인식된 식재료가 없습니다.</Text>
               <Text style={styles.emptyDescription}>
@@ -425,13 +425,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   bannerTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
     color: '#111111',
     textAlign: 'center',
   },
   bannerDescription: {
-    fontSize: 13,
+    fontSize: 15,
     color: '#666666',
     textAlign: 'center',
   },
@@ -440,12 +440,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   recognizedTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
     color: '#111111',
   },
   recognizedHint: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#999999',
   },
   gridContainer: {
@@ -472,12 +472,12 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   emptyTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: '#111827',
   },
   emptyDescription: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#999999',
     textAlign: 'center',
   },

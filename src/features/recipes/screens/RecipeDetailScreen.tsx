@@ -1,79 +1,81 @@
+import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import DislikeIcon from '@/assets/images/dislike.svg';
-import LikeIcon from '@/assets/images/like.svg';
 import SquareCheckIcon from '@/assets/images/square-check.svg';
-import ActionButton from '@/shared/components/buttons/ActionButton';
+import { Badge } from '@/shared/components/badges/Badge';
 import QuantityControl from '@/shared/components/inputs/QuantityControl';
 import Header from '@/shared/components/navigation/Header';
 import { getIngredientIconComponent } from '@/shared/utils/ingredientIcon';
 import type { Ingredient } from '@features/ingredients/types';
-
-type RecipeItem = {
-  id: string;
-  name: string;
-  iconId?: string;
-  category: string;
-};
-
-type RecipeStep = {
-  number: number;
-  description: string;
-};
-
-type RecipeDetail = {
-  id: string;
-  title: string;
-  imageUri?: string;
-  items: RecipeItem[];
-  steps: RecipeStep[];
-};
+import { fetchRecipeInstruction, type RecipeDetail } from '@features/recipes/services/recipes.api';
 
 // 샘플 데이터 (나중에 API로 대체)
 const SAMPLE_RECIPE_DETAILS: Record<string, RecipeDetail> = {
   '1': {
     id: '1',
-    title: '김치죽',
+    title: '마라감자',
+    subtitle: '중국 청두 야시장 스타일의 매콤한 감자요리',
+    tags: ['중식', '마라맛', '술안주', '매콤'],
     items: [
-      { id: 'kimchi', name: '김치', iconId: 'kimchi', category: 'vegetable' },
-      { id: 'garlic', name: '다진마늘', iconId: 'garlic', category: 'seasoning' },
-      { id: 'soy_sauce', name: '간장', iconId: 'soy_sauce', category: 'seasoning' },
-      { id: 'sesame_oil', name: '참기름', iconId: 'sesame_oil', category: 'seasoning' },
+      { id: 'potato', name: '냉동감자', iconId: 'potato', category: 'vegetable', amount: '200g', hasStock: true },
+      { id: 'green_onion', name: '대파', iconId: 'green_onion', category: 'vegetable', amount: '20g (1/5대)', hasStock: true },
+      { id: 'mala_sauce', name: '마라소스', iconId: 'mala_sauce', category: 'seasoning', amount: '25g (1과 1/2큰술)', hasStock: true },
+      { id: 'cooking_oil', name: '식용유', iconId: 'cooking_oil', category: 'seasoning', amount: '40g (1/4컵)', hasStock: false },
     ],
     steps: [
       {
         number: 1,
-        description: '김치를 적당한 크기로 썰어주세요.',
+        description: '대파는 0.3cm 두께로 송송 썰어 준비합니다.',
       },
       {
         number: 2,
-        description: '냄비에 물을 넣고 끓인 후 김치를 넣어주세요.',
+        description: '프라이팬을 강불로 예열하고 식용유를 둘러줍니다.',
       },
       {
         number: 3,
-        description: '쌀을 넣고 저어가며 죽이 될 때까지 끓여주세요.',
+        description: '냉동감자를 넣고 전체적으로 노릇노릇해질 때까지 8-10분간 튀기듯이 굽습니다.',
+        timer: '10분 00초',
+      },
+      {
+        number: 4,
+        description: '감자가 골고루 익으면 남은 기름을 따라냅니다.',
+      },
+      {
+        number: 5,
+        description: '썰어둔 대파를 넣고 1분간 볶아 향을 냅니다.',
+        timer: '01분 00초',
+      },
+      {
+        number: 6,
+        description: '불을 중불로 줄이고 마라소스를 넣어 30초간 골고루 섞어줍니다.',
+        timer: '00분 30초',
+      },
+      {
+        number: 7,
+        description: '감자가 마라소스와 잘 어우러지도록 한 번 더 섞어 완성합니다.',
       },
     ],
   },
   '2': {
     id: '2',
     title: '참치간장계란밥',
+    tags: ['한식', '간단요리', '밥반찬'],
     items: [
-      { id: 'tuna', name: '참치', iconId: 'fish', category: 'seafood' },
-      { id: 'egg', name: '계란', iconId: 'egg', category: 'dairy_processed' },
-      { id: 'soy_sauce', name: '간장', iconId: 'soy_sauce', category: 'seasoning' },
-      { id: 'sesame_oil', name: '참기름', iconId: 'sesame_oil', category: 'seasoning' },
+      { id: 'tuna', name: '참치', iconId: 'fish', category: 'seafood', amount: '100g', hasStock: false },
+      { id: 'egg', name: '계란', iconId: 'egg', category: 'dairy_processed', amount: '1개', hasStock: true },
+      { id: 'soy_sauce', name: '간장', iconId: 'soy_sauce', category: 'seasoning', amount: '10g (1큰술)', hasStock: true },
+      { id: 'sesame_oil', name: '참기름', iconId: 'sesame_oil', category: 'seasoning', amount: '5g (1작은술)', hasStock: true },
     ],
     steps: [
       {
@@ -186,13 +188,42 @@ type DeductionItem = {
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { width: screenWidth } = useWindowDimensions();
-  const recipe = SAMPLE_RECIPE_DETAILS[id || '1'];
+  // 테스트를 위해 ID를 39로 고정
+  const recipeId = '39'; // id || '39';
+  const [recipe, setRecipe] = useState<RecipeDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [userFeedback, setUserFeedback] = useState<'like' | 'dislike' | null>(null);
+  const [imageLoadError, setImageLoadError] = useState(false);
+
+  // API에서 레시피 상세 정보 가져오기
+  useEffect(() => {
+    const loadRecipe = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const recipeData = await fetchRecipeInstruction(recipeId);
+        console.log('레시피 데이터 로드 완료:', {
+          id: recipeData.id,
+          title: recipeData.title,
+          imageUri: recipeData.imageUri,
+        });
+        setRecipe(recipeData);
+        setImageLoadError(false); // 레시피 로드 시 이미지 에러 상태 초기화
+      } catch (err) {
+        console.error('레시피 상세 정보 로드 실패:', err);
+        setError(err instanceof Error ? err.message : '레시피를 불러오는데 실패했습니다.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadRecipe();
+  }, [recipeId]);
 
   // 재료 차감 아이템 초기화 (식재료만, 조미료 제외)
   const initialDeductionItems = useMemo<DeductionItem[]>(() => {
+    if (!recipe) return [];
     return recipe.items
       .filter((item) => item.category !== 'seasoning')
       .map((ing) => {
@@ -207,12 +238,35 @@ export default function RecipeDetailScreen() {
           selected: true,
         };
       });
-  }, [recipe.items]);
+  }, [recipe?.items]);
 
   const [deductionItems, setDeductionItems] = useState<DeductionItem[]>(initialDeductionItems);
 
-  if (!recipe) {
-    return null;
+  useEffect(() => {
+    setDeductionItems(initialDeductionItems);
+  }, [initialDeductionItems]);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FFAE2C" />
+          <Text style={styles.loadingText}>레시피를 불러오는 중...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !recipe) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>
+            {error || '레시피를 불러오는데 실패했습니다.'}
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
   }
 
   const handleBackPress = () => {
@@ -262,37 +316,6 @@ export default function RecipeDetailScreen() {
   );
   const canDeduct = selectedCount > 0 && !hasInsufficient;
 
-  // 조미료/식재료 아이템 너비 계산 (4개씩 정렬, 양옆 패딩 16, 아이템 간격 20)
-  const itemWidth = (screenWidth - 16 * 2 - 20 * 3) / 4;
-
-  // 카테고리로 필터링
-  const ingredients = recipe.items.filter((item) => item.category !== 'seasoning');
-  const seasonings = recipe.items.filter((item) => item.category === 'seasoning');
-
-  const renderItemIcon = (item: RecipeItem) => {
-    const IconComponent = getIngredientIconComponent({
-      iconId: item.iconId,
-      category: item.category,
-    } as Ingredient);
-    return IconComponent ? <IconComponent width={40} height={40} /> : null;
-  };
-
-  const toggleLike = () => {
-    if (userFeedback === 'like') {
-      setUserFeedback(null);
-    } else {
-      setUserFeedback('like');
-    }
-  };
-
-  const toggleDislike = () => {
-    if (userFeedback === 'dislike') {
-      setUserFeedback(null);
-    } else {
-      setUserFeedback('dislike');
-    }
-  };
-
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
       <View style={styles.imageSection}>
@@ -305,79 +328,85 @@ export default function RecipeDetailScreen() {
             transparent
           />
         </View>
-        <View style={styles.imagePlaceholder}>
-          <Text style={styles.imagePlaceholderText}>🍲</Text>
-        </View>
+        {recipe.imageUri && !imageLoadError ? (
+          <Image
+            source={{ uri: recipe.imageUri }}
+            style={styles.recipeImage}
+            contentFit="cover"
+            onError={(error) => {
+              console.error('이미지 로드 실패:', recipe.imageUri, error);
+              setImageLoadError(true);
+            }}
+            onLoad={() => {
+              console.log('이미지 로드 성공:', recipe.imageUri);
+              setImageLoadError(false);
+            }}
+            transition={200}
+          />
+        ) : (
+          <View style={styles.imagePlaceholder}>
+            <Text style={styles.imagePlaceholderText}>🍲</Text>
+          </View>
+        )}
       </View>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
 
         {/* 레시피 정보 섹션 */}
         <View style={styles.infoSection}>
-          <View style={styles.titleRow}>
-            <Text style={styles.title}>{recipe.title}</Text>
-            <View style={styles.feedbackButtons}>
-              <Pressable
-                onPress={toggleLike}
-                style={[
-                  styles.feedbackButton,
-                  userFeedback === 'like' && styles.feedbackButtonActiveLike,
-                ]}
-              >
-                <LikeIcon width={24} height={24} color={userFeedback === 'like' ? '#2196F3' : '#000'} />
-              </Pressable>
-              <Pressable
-                onPress={toggleDislike}
-                style={[
-                  styles.feedbackButton,
-                  userFeedback === 'dislike' && styles.feedbackButtonActiveDislike,
-                ]}
-              >
-                <DislikeIcon width={24} height={24} color={userFeedback === 'dislike' ? '#F44336' : '#000'} />
-              </Pressable>
+          {/* 레시피 헤더 */}
+          <View style={styles.recipeHeader}>
+            <Text style={styles.recipeTitle}>{recipe.title}</Text>
+            {recipe.subtitle && (
+              <Text style={styles.recipeSubtitle}>{recipe.subtitle}</Text>
+            )}
+            {recipe.tags && recipe.tags.length > 0 && (
+              <View style={styles.recipeTags}>
+                {recipe.tags.map((tag, index) => (
+                  <Badge key={index} label={tag} variant="tag" />
+                ))}
+              </View>
+            )}
+          </View>
+
+          {/* 재료 섹션 */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>재료</Text>
+            <View style={styles.ingredientsBox}>
+              {recipe.items.map((item) => {
+                const IconComponent = getIngredientIconComponent({
+                  iconId: item.iconId,
+                  category: item.category,
+                } as Ingredient);
+                return (
+                  <View key={item.id} style={styles.ingredientRow}>
+                    <View style={styles.ingredientName}>
+                      {IconComponent && (
+                        <View style={styles.ingredientIcon}>
+                          <IconComponent width={24} height={24} />
+                        </View>
+                      )}
+                      <View style={styles.ingredientNameTextContainer}>
+                        <Text style={styles.ingredientNameText}>{item.name}</Text>
+                        {item.hasStock !== undefined && (
+                          <View style={styles.badgeWrapper}>
+                            <Badge
+                              label={item.hasStock ? '보유' : '필요'}
+                              variant={item.hasStock ? 'have' : 'need'}
+                            />
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                    {item.amount && (
+                      <Text style={styles.ingredientAmount}>{item.amount}</Text>
+                    )}
+                  </View>
+                );
+              })}
             </View>
           </View>
 
-          {/* 식재료 섹션 */}
-          {ingredients.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>식재료</Text>
-              <View style={styles.seasoningGrid}>
-                {ingredients.map((item) => (
-                  <View
-                    key={item.id}
-                    style={[styles.seasoningItem, { width: itemWidth }]}
-                  >
-                    <View style={styles.seasoningIconContainer}>
-                      {renderItemIcon(item)}
-                    </View>
-                    <Text style={styles.seasoningName}>{item.name}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
-
-          {/* 조미료 섹션 */}
-          {seasonings.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>조미료</Text>
-              <View style={styles.seasoningGrid}>
-                {seasonings.map((item) => (
-                  <View
-                    key={item.id}
-                    style={[styles.seasoningItem, { width: itemWidth }]}
-                  >
-                    <View style={styles.seasoningIconContainer}>
-                      {renderItemIcon(item)}
-                    </View>
-                    <Text style={styles.seasoningName}>{item.name}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
-
-          {/* 레시피 섹션 */}
+          {/* 조리 과정 섹션 */}
           <View style={styles.recipeStepsSection}>
             <Text style={styles.sectionTitle}>레시피</Text>
             <View style={styles.stepsList}>
@@ -391,12 +420,11 @@ export default function RecipeDetailScreen() {
           </View>
         </View>
       </ScrollView>
-      <View style={styles.buttonContainer}>
-        <ActionButton
-          label="레시피 만들어먹었어요!"
-          onPress={handleCompletePress}
-          tone="primary"
-        />
+      <View style={styles.bottomAction}>
+        <Pressable style={styles.startButton} onPress={handleCompletePress}>
+          <Text style={styles.startButtonEmoji}>🍳</Text>
+          <Text style={styles.startButtonText}>요리 시작하기</Text>
+        </Pressable>
       </View>
 
       {/* 재료 차감 모달 */}
@@ -492,6 +520,28 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5F5',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#666',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+    gap: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#F44336',
+    textAlign: 'center',
+  },
   scrollView: {
     flex: 1,
   },
@@ -509,6 +559,10 @@ const styles = StyleSheet.create({
     zIndex: 1,
     backgroundColor: 'transparent',
   },
+  recipeImage: {
+    width: '100%',
+    height: '100%',
+  },
   imagePlaceholder: {
     width: '100%',
     height: '100%',
@@ -523,94 +577,82 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     marginTop: -24,
     padding: 24,
-    paddingBottom: 32,
+    paddingBottom: 100,
   },
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
+  recipeHeader: {
+    paddingTop: 24,
+    paddingBottom: 0,
+    marginBottom: 0,
   },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 32,
-    marginTop: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+  recipeTitle: {
+    fontSize: 24,
+    fontWeight: '700',
     color: '#333',
-    flex: 1,
+    marginBottom: 8,
   },
-  feedbackButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  feedbackButton: {
-    width: 44,
-    height: 44,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  feedbackButtonActiveLike: {
-    backgroundColor: '#E3F2FD',
-    shadowColor: '#2196F3',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  feedbackButtonActiveDislike: {
-    backgroundColor: '#FFEBEE',
-    shadowColor: '#F44336',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  description: {
+  recipeSubtitle: {
     fontSize: 15,
     color: '#999',
-    marginBottom: 32,
+    lineHeight: 22.5,
+    marginBottom: 16,
+  },
+  recipeTags: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 16,
+    marginBottom: 0,
+    flexWrap: 'wrap',
   },
   section: {
+    paddingTop: 0,
+    marginTop: 32,
     marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 16,
-    color: '#999',
-    marginBottom: 20,
-    fontWeight: '500',
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 16,
   },
-  seasoningGrid: {
+  ingredientsBox: {
+    backgroundColor: '#FAFAFA',
+    borderRadius: 16,
+    padding: 20,
+  },
+  ingredientRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 20,
-    marginBottom: 32,
-  },
-  seasoningItem: {
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 8,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
-  seasoningIconContainer: {
-    width: 40,
-    height: 40,
+  ingredientName: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  ingredientIcon: {
+    width: 24,
+    height: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  seasoningName: {
-    fontSize: 13,
+  ingredientNameTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  ingredientNameText: {
+    fontSize: 15,
     color: '#333',
-    textAlign: 'center',
+  },
+  badgeWrapper: {
+    marginLeft: 8,
+  },
+  ingredientAmount: {
+    fontSize: 14,
+    color: '#666',
   },
   recipeStepsSection: {
     marginBottom: 80,
@@ -628,7 +670,7 @@ const styles = StyleSheet.create({
   stepNumber: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#FF9A56',
+    color: '#FFAE2C',
     minWidth: 24,
   },
   stepDescription: {
@@ -636,6 +678,36 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#666',
     lineHeight: 24,
+  },
+  bottomAction: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 32,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  startButton: {
+    width: '100%',
+    backgroundColor: '#FFAE2C',
+    borderRadius: 16,
+    padding: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  startButtonEmoji: {
+    fontSize: 20,
+  },
+  startButtonText: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   // 모달 스타일
   modalOverlay: {

@@ -1,5 +1,14 @@
+/**
+ * 재료 API 서비스
+ * - 재료 목록 조회 (GET /materials)
+ * - 재료 수동 추가 (POST /materials/manual)
+ * - 영수증 OCR로 재료 추가 (POST /materials/receipt)
+ * - 재료 삭제 (DELETE /materials/{id})
+ * - API 응답을 프론트엔드 타입으로 변환
+ */
+
 import { Ingredient, IngredientCategory } from '@features/ingredients/types';
-import { INGREDIENT_ICON_CATEGORIES } from '@shared/constants/ingredientIcons';
+import { findIconIdByName } from '@shared/utils/ingredientUtils';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://13.124.139.199';
 
@@ -50,25 +59,6 @@ function mapCategory(category?: string): IngredientCategory | undefined {
   return category as IngredientCategory;
 }
 
-// 재료 이름으로 iconId를 찾는 함수
-function findIconIdByName(name: string, category?: string): string | undefined {
-  // 카테고리가 있으면 해당 카테고리에서 먼저 찾기
-  if (category) {
-    const categoryData = INGREDIENT_ICON_CATEGORIES.find((cat) => cat.value === category);
-    if (categoryData) {
-      const item = categoryData.items.find((item) => item.name === name);
-      if (item) return item.id;
-    }
-  }
-
-  // 카테고리 없거나 못 찾았으면 전체에서 찾기
-  for (const categoryData of INGREDIENT_ICON_CATEGORIES) {
-    const item = categoryData.items.find((item) => item.name === name);
-    if (item) return item.id;
-  }
-
-  return undefined;
-}
 
 function mapMaterialToIngredient(material: MaterialResponse): Ingredient {
   // 재료 이름으로 iconId 찾기

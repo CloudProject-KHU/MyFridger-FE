@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import type { SvgProps } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { SvgProps } from 'react-native-svg';
 
 import ChevronLeftIcon from '@/assets/images/chevron-left.svg';
 import Colors from '@/shared/constants/Colors';
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
   },
   side: {
