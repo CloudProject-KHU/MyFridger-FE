@@ -13,8 +13,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import CameraIcon from '@/assets/images/camera.svg';
-import CarrotSadIcon from '@/assets/images/carrot-sad.svg';
+import CameraIcon from '@/assets/images/icons/camera.svg';
+import CarrotSadIcon from '@/assets/images/character/carrot-sad.svg';
 import IngredientSelectableCard from '@features/add/components/IngredientSelectableCard';
 import { bulkDeleteIngredients, createMaterialsFromReceipt } from '@features/ingredients/services/ingredients.api';
 import { Ingredient } from '@features/ingredients/types';

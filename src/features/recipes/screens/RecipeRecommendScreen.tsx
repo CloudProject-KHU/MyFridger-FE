@@ -1,14 +1,15 @@
-import React from 'react';
-import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import React from 'react';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Badge } from '@/shared/components/badges/Badge';
 import Header from '@/shared/components/navigation/Header';
 
 type Recipe = {
   id: string;
   title: string;
-  description: string;
+  tags?: string[];
   imageUri?: string;
 };
 
@@ -16,27 +17,27 @@ const SAMPLE_RECIPES: Recipe[] = [
   {
     id: '1',
     title: '김치죽',
-    description: '속을 든든하게 하는 간단한 김치죽!',
+    tags: ['국&찌개', '끓이기'],
   },
   {
     id: '2',
     title: '참치간장계란밥',
-    description: '식사 거르지 않는 초간단 식사!',
+    tags: ['밥반찬', '볶기'],
   },
   {
     id: '3',
     title: '간장두부덮밥',
-    description: '간장 베이스의 두부덮밥!',
+    tags: ['밥반찬', '볶기'],
   },
   {
     id: '4',
     title: '돼지고기 고추장찌개',
-    description: '간편하게 만들 수 있는 고추장찌개!',
+    tags: ['국&찌개', '끓이기'],
   },
   {
     id: '5',
     title: '된장라면',
-    description: '구수함의 깊이가 다른 맛!',
+    tags: ['면요리', '끓이기'],
   },
 ];
 
@@ -63,7 +64,13 @@ export default function RecipeRecommendScreen() {
         </View>
         <View style={styles.content}>
           <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.description}>{item.description}</Text>
+          {item.tags && item.tags.length > 0 && (
+            <View style={styles.tagsContainer}>
+              {item.tags.map((tag, index) => (
+                <Badge key={index} label={tag} variant="tag" />
+              ))}
+            </View>
+          )}
         </View>
       </Pressable>
     );
@@ -119,17 +126,17 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'center',
-    gap: 8,
+    gap: 14,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
     color: '#111111',
   },
-  description: {
-    fontSize: 14,
-    color: '#6B7280',
-    lineHeight: 20,
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
   },
   cardPressed: {
     opacity: 0.7,

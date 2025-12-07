@@ -7,8 +7,8 @@ import {
   View,
 } from "react-native";
 
-import ChevronLeft from "@/assets/images/chevron-left.svg";
-import ChevronRight from "@/assets/images/chevron-right.svg";
+import ChevronLeft from "@/assets/images/icons/chevron-left.svg";
+import ChevronRight from "@/assets/images/icons/chevron-right.svg";
 
 export type DatePickerModalProps = {
   visible: boolean;

@@ -1,6 +1,8 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
+  Animated,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -11,12 +13,72 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import CarrotIcon from '@/assets/images/carrot.svg';
+import CarrotIcon from '@/assets/images/character/carrot-character.svg';
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+
+  // 애니메이션 값들
+  const headerFadeAnim = useRef(new Animated.Value(0)).current;
+  const headerSlideAnim = useRef(new Animated.Value(30)).current;
+  const formFadeAnim = useRef(new Animated.Value(0)).current;
+  const formSlideAnim = useRef(new Animated.Value(30)).current;
+  const characterAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // 헤더 애니메이션
+    Animated.parallel([
+      Animated.timing(headerFadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(headerSlideAnim, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // 입력 필드와 버튼 애니메이션 (헤더 이후에 시작)
+    Animated.parallel([
+      Animated.timing(formFadeAnim, {
+        toValue: 1,
+        duration: 800,
+        delay: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(formSlideAnim, {
+        toValue: 0,
+        duration: 800,
+        delay: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // 캐릭터 위아래 애니메이션
+    const bounceAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(characterAnim, {
+          toValue: -15,
+          duration: 1250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(characterAnim, {
+          toValue: 0,
+          duration: 1250,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    bounceAnimation.start();
+
+    return () => {
+      bounceAnimation.stop();
+    };
+  }, []);
 
   const handleSubmit = () => {
     // TODO: 실제 로그인 API 연동
@@ -27,57 +89,98 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
-      <KeyboardAvoidingView
-        style={styles.root}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <View style={styles.iconContainer}>
-              <CarrotIcon width={180} height={180} />
-            </View>
-            <Text style={styles.title}>냉장고 관리</Text>
-            <Text style={styles.subtitle}>신선함을 지키는 가장 쉬운 방법</Text>
-          </View>
+    <LinearGradient
+      colors={['#FFF8E7', '#FFE5B8', '#FFF8E7']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradient}
+    >
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
+        <KeyboardAvoidingView
+          style={styles.root}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <View style={styles.container}>
+            <Animated.View
+              style={[
+                styles.header,
+                {
+                  opacity: headerFadeAnim,
+                  transform: [{ translateY: headerSlideAnim }],
+                },
+              ]}
+            >
+              <Animated.View
+                style={[
+                  styles.iconContainer,
+                  {
+                    transform: [{ translateY: characterAnim }],
+                  },
+                ]}
+              >
+                <CarrotIcon width={180} height={180} />
+              </Animated.View>
+              <Text style={styles.title}>냉장고 관리</Text>
+              <Text style={styles.subtitle}>신선함을 지키는 가장 쉬운 방법</Text>
+            </Animated.View>
 
-          <View style={styles.inputGroup}>
-            <TextInput
-              style={styles.input}
-              placeholder="이메일"
-              placeholderTextColor="#999999"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="email-address"
-            />
-          </View>
+            <Animated.View
+              style={[
+                styles.formContainer,
+                {
+                  opacity: formFadeAnim,
+                  transform: [{ translateY: formSlideAnim }],
+                },
+              ]}
+            >
+              <View style={styles.inputGroup}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="이메일"
+                  placeholderTextColor="#999999"
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="email-address"
+                />
+              </View>
 
-          <View style={styles.inputGroup}>
-            <TextInput
-              style={styles.input}
-              placeholder="비밀번호"
-              placeholderTextColor="#999999"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
+              <View style={styles.inputGroup}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="비밀번호"
+                  placeholderTextColor="#999999"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                />
+              </View>
 
-          <Pressable style={styles.loginButton} onPress={handleSubmit}>
-            <Text style={styles.loginButtonText}>로그인</Text>
-          </Pressable>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+              <Pressable style={styles.loginButton} onPress={handleSubmit}>
+                <Text style={styles.loginButtonText}>로그인</Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.backButton}
+                onPress={() => router.replace('/onboarding')}
+              >
+                <Text style={styles.backButtonText}>← 뒤로</Text>
+              </Pressable>
+            </Animated.View>
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF8E7',
   },
   root: {
     flex: 1,
@@ -91,6 +194,9 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 48,
+  },
+  formContainer: {
+    width: '100%',
   },
   iconContainer: {
     marginBottom: 16,
@@ -137,6 +243,17 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '700',
     color: '#FFFFFF',
+  },
+  backButton: {
+    width: '100%',
+    marginTop: 16,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: '#666666',
   },
 });
 

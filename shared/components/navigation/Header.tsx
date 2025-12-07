@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { SvgProps } from 'react-native-svg';
 
-import ChevronLeftIcon from '@/assets/images/chevron-left.svg';
+import ChevronLeftIcon from '@/assets/images/icons/chevron-left.svg';
 import Colors from '@/shared/constants/Colors';
 import { useColorScheme } from '@/shared/hooks/useColorScheme';
 

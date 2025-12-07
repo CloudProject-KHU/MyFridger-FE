@@ -11,12 +11,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { SvgProps } from 'react-native-svg';
 
-import CameraIcon from '@/assets/images/camera.svg';
-import HomeIcon from '@/assets/images/home.svg';
-import PlusIcon from '@/assets/images/plus.svg';
-import RecipeIcon from '@/assets/images/recipe.svg';
-import SearchIcon from '@/assets/images/search.svg';
-import SettingIcon from '@/assets/images/setting.svg';
+import CameraIcon from '@/assets/images/icons/camera.svg';
+import HomeIcon from '@/assets/images/icons/home.svg';
+import PlusIcon from '@/assets/images/icons/plus.svg';
+import RecipeIcon from '@/assets/images/icons/recipe.svg';
+import SearchIcon from '@/assets/images/icons/search.svg';
+import SettingIcon from '@/assets/images/icons/setting.svg';
 import Colors from '@/shared/constants/Colors';
 import { useColorScheme } from '@/shared/hooks/useColorScheme';
 

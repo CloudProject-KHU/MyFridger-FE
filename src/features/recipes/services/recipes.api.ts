@@ -65,12 +65,14 @@ function mapRecipeInstructionToDetail(response: RecipeInstructionResponse): Reci
     .slice(1) // 첫 번째 항목 제외
     .map((materialName, index) => {
       const { name, amount } = parseMaterialName(materialName);
-      const category = getCategoryByIngredientNameOrGuess(name);
-      const iconId = findIconIdByName(name, category);
+      // 재료 이름에서 띄어쓰기 제거 (예: "다진 마늘" -> "다진마늘")
+      const nameWithoutSpaces = name.replace(/\s+/g, '');
+      const category = getCategoryByIngredientNameOrGuess(nameWithoutSpaces);
+      const iconId = findIconIdByName(nameWithoutSpaces, category);
       
       return {
         id: `material-${index + 1}`, // 인덱스는 1부터 시작 (첫 번째 제외했으므로)
-        name,
+        name: nameWithoutSpaces,
         iconId,
         category,
         amount,

@@ -14,10 +14,11 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import ArrowIcon from "@/assets/images/^.svg";
-import CalendarIcon from "@/assets/images/calendar-grey.svg";
-import CloseIcon from "@/assets/images/close.svg";
-import PlusIcon from "@/assets/images/plus.svg";
+import CarrotMagicIcon from "@/assets/images/character/carrot-magic.svg";
+import ArrowIcon from "@/assets/images/icons/^.svg";
+import CalendarIcon from "@/assets/images/icons/calendar-grey.svg";
+import CloseIcon from "@/assets/images/icons/close.svg";
+import PlusIcon from "@/assets/images/icons/plus.svg";
 import { createMaterialManual, estimateExpiryDate } from "@features/ingredients/services/ingredients.api";
 import ActionButton from "@shared/components/buttons/ActionButton";
 import DatePickerModal from "@shared/components/calendar/DatePickerModal";
@@ -199,7 +200,7 @@ export default function ManualAddScreen() {
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     const startTime = Date.now();
-    const MIN_LOADING_TIME = 2000; // 최소 2초 로딩 표시
+    const MIN_LOADING_TIME = 4000; // 최소 4초 로딩 표시
 
     try {
       // 유통기한 추정 API 호출
@@ -499,14 +500,12 @@ export default function ManualAddScreen() {
 // AI 로딩 모달 컴포넌트
 function AILoadingModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const spinValue = React.useRef(new Animated.Value(0)).current;
-  const pulseValue = React.useRef(new Animated.Value(1)).current;
-  const pingValue1 = React.useRef(new Animated.Value(0)).current;
-  const pingValue2 = React.useRef(new Animated.Value(0)).current;
   const bounceValue1 = React.useRef(new Animated.Value(0)).current;
   const bounceValue2 = React.useRef(new Animated.Value(0)).current;
   const bounceValue3 = React.useRef(new Animated.Value(0)).current;
   const fadeValue = React.useRef(new Animated.Value(0)).current;
   const scaleValue = React.useRef(new Animated.Value(0.9)).current;
+  const floatValue = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
     if (visible) {
@@ -534,55 +533,6 @@ function AILoadingModal({ visible, onClose }: { visible: boolean; onClose: () =>
         })
       ).start();
 
-      // 펄스 애니메이션
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseValue, {
-            toValue: 1.2,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseValue, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-
-      // 펄스 효과 1
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pingValue1, {
-            toValue: 1,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pingValue1, {
-            toValue: 0,
-            duration: 0,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-
-      // 펄스 효과 2 (0.5초 지연)
-      Animated.loop(
-        Animated.sequence([
-          Animated.delay(500),
-          Animated.timing(pingValue2, {
-            toValue: 1,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pingValue2, {
-            toValue: 0,
-            duration: 0,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-
       // 바운스 애니메이션 (점들)
       const createBounce = (value: Animated.Value, delay: number) => {
         return Animated.loop(
@@ -605,43 +555,38 @@ function AILoadingModal({ visible, onClose }: { visible: boolean; onClose: () =>
       createBounce(bounceValue1, 0).start();
       createBounce(bounceValue2, 200).start();
       createBounce(bounceValue3, 400).start();
+
+      // 캐릭터 위아래 둥둥 애니메이션
+      const floatAnimation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(floatValue, {
+            toValue: -15,
+            duration: 1250,
+            useNativeDriver: true,
+          }),
+          Animated.timing(floatValue, {
+            toValue: 0,
+            duration: 1250,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      floatAnimation.start();
     } else {
       // 리셋
       spinValue.setValue(0);
-      pulseValue.setValue(1);
-      pingValue1.setValue(0);
-      pingValue2.setValue(0);
       bounceValue1.setValue(0);
       bounceValue2.setValue(0);
       bounceValue3.setValue(0);
       fadeValue.setValue(0);
       scaleValue.setValue(0.9);
+      floatValue.setValue(0);
     }
   }, [visible]);
 
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
-  });
-
-  const ping1Opacity = pingValue1.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.2, 0],
-  });
-
-  const ping1Scale = pingValue1.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 1.5],
-  });
-
-  const ping2Opacity = pingValue2.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.2, 0],
-  });
-
-  const ping2Scale = pingValue2.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 1.3],
   });
 
   const bounce1TranslateY = bounceValue1.interpolate({
@@ -672,41 +617,19 @@ function AILoadingModal({ visible, onClose }: { visible: boolean; onClose: () =>
           ]}
         >
           <View style={styles.loadingContent}>
-            {/* 메인 스파크 애니메이션 */}
+            {/* 메인 캐릭터 애니메이션 */}
             <View style={styles.sparkContainer}>
-              {/* 중앙 스파크 아이콘 */}
-              <View style={styles.sparkIconContainer}>
-                <Animated.Text
-                  style={[
-                    styles.sparkIcon,
-                    {
-                      transform: [{ scale: pulseValue }],
-                    },
-                  ]}
-                >
-                  ✨
-                </Animated.Text>
-              </View>
-
-              {/* 오로라 펄스 효과 */}
+              {/* 중앙 캐릭터 아이콘 */}
               <Animated.View
                 style={[
-                  styles.pingCircle1,
+                  styles.sparkIconContainer,
                   {
-                    opacity: ping1Opacity,
-                    transform: [{ scale: ping1Scale }],
+                    transform: [{ translateY: floatValue }],
                   },
                 ]}
-              />
-              <Animated.View
-                style={[
-                  styles.pingCircle2,
-                  {
-                    opacity: ping2Opacity,
-                    transform: [{ scale: ping2Scale }],
-                  },
-                ]}
-              />
+              >
+                <CarrotMagicIcon width={180} height={180} />
+              </Animated.View>
             </View>
 
             {/* 텍스트 */}
@@ -925,7 +848,8 @@ const styles = StyleSheet.create({
   loadingModal: {
     backgroundColor: '#FFFFFF',
     borderRadius: 24,
-    padding: 42,
+    padding: 22,
+    paddingTop: 48,
     maxWidth: 400,
     width: '100%',
     shadowColor: '#000',
@@ -998,7 +922,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#6b7280',
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 12,
     lineHeight: 22,
   },
   bounceDots: {

@@ -3,7 +3,7 @@ import React from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import PlusIcon from '@/assets/images/plus.svg';
+import PlusIcon from '@/assets/images/icons/plus.svg';
 import IngredientSelectableCard from '@features/add/components/IngredientSelectableCard';
 import { createMaterialManual, fetchIngredients } from '@features/ingredients/services/ingredients.api';
 import { Ingredient } from '@features/ingredients/types';
@@ -278,12 +278,12 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   suggestionTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
     color: '#111111',
   },
   suggestionSubtitle: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#666666',
   },
   suggestionButton: {

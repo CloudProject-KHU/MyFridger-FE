@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Modal,
   Pressable,
   ScrollView,
@@ -17,6 +18,7 @@ import ActionButton from '@/shared/components/buttons/ActionButton';
 import QuantityControl from '@/shared/components/inputs/QuantityControl';
 import Header from '@/shared/components/navigation/Header';
 import { getIngredientIconComponent } from '@/shared/utils/ingredientIcon';
+import { deleteIngredientById, fetchIngredients, updateIngredientById } from '@features/ingredients/services/ingredients.api';
 import type { Ingredient } from '@features/ingredients/types';
 import { fetchRecipeInstruction, type RecipeDetail } from '@features/recipes/services/recipes.api';
 
@@ -163,18 +165,6 @@ const SAMPLE_RECIPE_DETAILS: Record<string, RecipeDetail> = {
   },
 };
 
-// 샘플 냉장고 재료 데이터 (나중에 실제 데이터로 대체)
-const SAMPLE_FRIDGE_INGREDIENTS: Record<string, { stock: number }> = {
-  kimchi: { stock: 3 },
-  onion: { stock: 2 },
-  carrot: { stock: 1 },
-  egg: { stock: 10 },
-  tofu: { stock: 5 },
-  pork: { stock: 2 },
-  tuna: { stock: 0 },
-  fish: { stock: 0 },
-};
-
 type DeductionItem = {
   id: string;
   name: string;
@@ -191,6 +181,7 @@ export default function RecipeDetailScreen() {
   // 테스트를 위해 ID를 39로 고정
   const recipeId = '36'; // id || '39';
   const [recipe, setRecipe] = useState<RecipeDetail | null>(null);
+  const [userIngredients, setUserIngredients] = useState<Ingredient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -202,13 +193,54 @@ export default function RecipeDetailScreen() {
       try {
         setIsLoading(true);
         setError(null);
-        const recipeData = await fetchRecipeInstruction(recipeId);
-        console.log('레시피 데이터 로드 완료:', {
-          id: recipeData.id,
-          title: recipeData.title,
-          imageUri: recipeData.imageUri,
+        
+        // 레시피 데이터와 재료 목록을 동시에 가져오기
+        const [recipeData, fetchedUserIngredients] = await Promise.all([
+          fetchRecipeInstruction(recipeId),
+          fetchIngredients(),
+        ]);
+        
+        // 사용자가 보유한 재료 목록 저장
+        setUserIngredients(fetchedUserIngredients);
+        
+        // 사용자가 보유한 재료 이름 목록 생성 (대소문자 무시, 공백 제거)
+        const userIngredientNames = new Set(
+          fetchedUserIngredients.map((ing) => ing.name.trim().toLowerCase())
+        );
+        
+        // 레시피 재료에 hasStock 설정
+        const itemsWithStock = recipeData.items.map((item) => {
+          const itemNameLower = item.name.trim().toLowerCase();
+          // "물"은 항상 보유하고 있다고 가정 (뱃지 표시 안 함)
+          if (itemNameLower === '물') {
+            return {
+              ...item,
+              hasStock: undefined, // undefined로 설정하면 뱃지가 표시되지 않음
+            };
+          }
+          const hasStock = userIngredientNames.has(itemNameLower);
+          return {
+            ...item,
+            hasStock,
+          };
         });
-        setRecipe(recipeData);
+        
+        const recipeWithStock = {
+          ...recipeData,
+          items: itemsWithStock,
+        };
+        
+        console.log('레시피 데이터 로드 완료:', {
+          id: recipeWithStock.id,
+          title: recipeWithStock.title,
+          imageUri: recipeWithStock.imageUri,
+          itemsWithStock: itemsWithStock.map((item) => ({
+            name: item.name,
+            hasStock: item.hasStock,
+          })),
+        });
+        
+        setRecipe(recipeWithStock);
         setImageLoadError(false); // 레시피 로드 시 이미지 에러 상태 초기화
       } catch (err) {
         console.error('레시피 상세 정보 로드 실패:', err);
@@ -221,25 +253,43 @@ export default function RecipeDetailScreen() {
     loadRecipe();
   }, [recipeId]);
 
-  // 재료 차감 아이템 초기화 (식재료만, 조미료 제외, 재고가 있는 재료만)
+  // 재료 차감 아이템 초기화 (보유한 재료만, seasoning 제외)
   const initialDeductionItems = useMemo<DeductionItem[]>(() => {
     if (!recipe) return [];
+    
+    // 사용자가 보유한 재료를 이름으로 매핑 (대소문자 무시, 공백 제거)
+    const userIngredientMap = new Map(
+      userIngredients.map((ing) => [
+        ing.name.trim().toLowerCase(),
+        ing,
+      ])
+    );
+    
     return recipe.items
-      .filter((item) => item.category !== 'seasoning')
+      .filter((item) => {
+        // seasoning 카테고리는 제외
+        if (item.category === 'seasoning') return false;
+        // 보유한 재료만 (hasStock: true)
+        return item.hasStock === true;
+      })
       .map((ing) => {
-        const fridgeData = SAMPLE_FRIDGE_INGREDIENTS[ing.id] || { stock: 0 };
+        // 재료 이름으로 보유 재료 찾기
+        const itemNameLower = ing.name.trim().toLowerCase();
+        const userIngredient = userIngredientMap.get(itemNameLower);
+        const stock = userIngredient?.quantity || 0;
+        
         return {
           id: ing.id,
           name: ing.name,
           iconId: ing.iconId,
           category: ing.category,
-          stock: fridgeData.stock,
+          stock: stock,
           used: 1,
           selected: true,
         };
       })
       .filter((item) => item.stock > 0); // 재고가 있는 재료만 표시
-  }, [recipe?.items]);
+  }, [recipe?.items, userIngredients]);
 
   const [deductionItems, setDeductionItems] = useState<DeductionItem[]>(initialDeductionItems);
 
@@ -294,11 +344,18 @@ export default function RecipeDetailScreen() {
 
   const handleChangeQuantity = (itemId: string, newValue: number) => {
     setDeductionItems((prev) =>
-      prev.map((item) => (item.id === itemId ? { ...item, used: newValue } : item)),
+      prev.map((item) => {
+        if (item.id === itemId) {
+          // 최소값은 1, 최대값은 보유한 개수(stock)
+          const clampedValue = Math.max(1, Math.min(newValue, item.stock));
+          return { ...item, used: clampedValue };
+        }
+        return item;
+      }),
     );
   };
 
-  const handleDeduct = () => {
+  const handleDeduct = async () => {
     const selectedItems = deductionItems.filter((item) => item.selected);
     const hasInsufficient = selectedItems.some((item) => item.used > item.stock);
 
@@ -306,9 +363,52 @@ export default function RecipeDetailScreen() {
       return; // 재고 부족 시 차감 불가
     }
 
-    // TODO: 실제 재료 차감 로직 구현
-    console.log('재료 차감:', selectedItems);
-    handleCloseModal();
+    try {
+      // 사용자가 보유한 재료를 이름으로 매핑
+      const userIngredientMap = new Map(
+        userIngredients.map((ing) => [
+          ing.name.trim().toLowerCase(),
+          ing,
+        ])
+      );
+
+      // 각 선택된 재료에 대해 수량 차감
+      const updatePromises = selectedItems.map(async (item) => {
+        const itemNameLower = item.name.trim().toLowerCase();
+        const userIngredient = userIngredientMap.get(itemNameLower);
+        
+        if (!userIngredient) {
+          console.warn(`재료를 찾을 수 없습니다: ${item.name}`);
+          return;
+        }
+
+        // 새로운 수량 계산 (기존 수량 - 사용한 수량)
+        const newQuantity = Math.max(0, (userIngredient.quantity || 0) - item.used);
+
+        // 수량이 0이 되면 삭제, 0보다 크면 업데이트
+        if (newQuantity === 0) {
+          await deleteIngredientById(userIngredient.id);
+        } else {
+          await updateIngredientById(userIngredient.id, {
+            quantity: newQuantity,
+          });
+        }
+      });
+
+      await Promise.all(updatePromises);
+      
+      console.log('재료 차감 완료:', selectedItems);
+      handleCloseModal();
+      
+      // 홈 탭으로 이동
+      router.push('/(tabs)');
+    } catch (error) {
+      console.error('재료 차감 실패:', error);
+      Alert.alert(
+        '차감 실패',
+        '재료 차감 중 문제가 발생했습니다. 다시 시도해주세요.'
+      );
+    }
   };
 
   const selectedCount = deductionItems.filter((item) => item.selected).length;

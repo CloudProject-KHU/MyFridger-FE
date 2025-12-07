@@ -3,7 +3,7 @@ import React, { forwardRef, useMemo } from 'react';
 import type { StyleProp, TextInputProps, ViewStyle } from 'react-native';
 import { Pressable, StyleSheet, TextInput } from 'react-native';
 
-import SearchIcon from '@/assets/images/search.svg';
+import SearchIcon from '@/assets/images/icons/search.svg';
 import Colors from '@/shared/constants/Colors';
 import { useColorScheme } from '@/shared/hooks/useColorScheme';
 

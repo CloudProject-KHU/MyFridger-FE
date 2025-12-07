@@ -4,8 +4,8 @@ import React from 'react';
 import { Alert, FlatList, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import CarrotIcon from '@/assets/images/carrot-happy.svg';
-import DeleteIcon from '@/assets/images/delete.svg';
+import CarrotIcon from '@/assets/images/character/carrot-happy.svg';
+import DeleteIcon from '@/assets/images/icons/delete.svg';
 import Header from '@/shared/components/navigation/Header';
 import TagTabs from '@/shared/components/tabs/TagTabs';
 import { INGREDIENT_CATEGORY_OPTIONS } from '@/shared/constants/ingredientCategories';
@@ -55,10 +55,15 @@ export default function IngredientListScreen() {
   );
 
   const filteredIngredients = React.useMemo(() => {
+    // "물"은 재료 목록에서 제외
+    const filtered = ingredients.filter((ingredient) => 
+      ingredient.name.trim().toLowerCase() !== '물'
+    );
+    
     const source =
       activeCategory === 'all'
-        ? ingredients
-        : ingredients.filter((ingredient) => ingredient.category === activeCategory);
+        ? filtered
+        : filtered.filter((ingredient) => ingredient.category === activeCategory);
 
     const parseExpiry = (expiresAt?: string) => {
       if (!expiresAt) return Number.POSITIVE_INFINITY;
@@ -167,7 +172,7 @@ export default function IngredientListScreen() {
         {ingredients.length === 0 ? (
           <View style={styles.emptyState}>
             <View style={styles.emptyImageContainer}>
-              <CarrotIcon width={180} height={180} />
+              <CarrotIcon width={250} height={250} />
             </View>
             <Text style={styles.emptyTitle}>냉장고가 비었어요!</Text>
             <Text style={styles.emptyDescription}>

@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 
-import CalendarIcon from '@/assets/images/calendar-grey.svg';
+import CalendarIcon from '@/assets/images/icons/calendar-grey.svg';
 import QuantityControl from '@/shared/components/inputs/QuantityControl';
 import { getIngredientIconComponent } from '@/shared/utils/ingredientIcon';
 import { MaterialUpdateRequest, updateIngredientById } from '@features/ingredients/services/ingredients.api';

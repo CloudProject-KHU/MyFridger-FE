@@ -44,7 +44,41 @@ export default function IngredientRemoveScreen() {
     });
   }, []);
 
-  const filteredIngredients = ingredients;
+  // 홈탭과 동일한 정렬 로직 적용 (소비기한 임박한 순서)
+  const filteredIngredients = React.useMemo(() => {
+    // "물"은 재료 목록에서 제외
+    const filtered = ingredients.filter((ingredient) => 
+      ingredient.name.trim().toLowerCase() !== '물'
+    );
+    
+    const parseExpiry = (expiresAt?: string) => {
+      if (!expiresAt) return Number.POSITIVE_INFINITY;
+      const trimmed = expiresAt.trim();
+
+      // D± 패턴인 경우 그대로 처리
+      const ddayMatch = /^D([+-]?)(\d+)$/.exec(trimmed);
+      if (ddayMatch) {
+        const sign = ddayMatch[1];
+        const value = Number(ddayMatch[2]);
+        if (sign === '+') {
+          return -value; // 이미 지난 것 우선
+        }
+        return value; // 남은 일수
+      }
+
+      // 날짜 문자열인 경우 D-day 계산
+      const targetDate = new Date(trimmed);
+      if (Number.isNaN(targetDate.getTime())) {
+        return Number.POSITIVE_INFINITY;
+      }
+      const now = new Date();
+      const msPerDay = 1000 * 60 * 60 * 24;
+      const diff = Math.ceil((targetDate.getTime() - now.getTime()) / msPerDay);
+      return diff;
+    };
+
+    return [...filtered].sort((a, b) => parseExpiry(a.expiresAt) - parseExpiry(b.expiresAt));
+  }, [ingredients]);
 
   const handleDelete = React.useCallback(() => {
     if (selectedIds.length === 0) return;
