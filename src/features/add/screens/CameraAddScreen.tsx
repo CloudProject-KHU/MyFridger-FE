@@ -13,8 +13,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import CameraIcon from '@/assets/images/icons/camera.svg';
 import CarrotSadIcon from '@/assets/images/character/carrot-sad.svg';
+import CameraIcon from '@/assets/images/icons/camera.svg';
 import IngredientSelectableCard from '@features/add/components/IngredientSelectableCard';
 import { bulkDeleteIngredients, createMaterialsFromReceipt } from '@features/ingredients/services/ingredients.api';
 import { Ingredient } from '@features/ingredients/types';
@@ -25,7 +25,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 const CARD_COLUMNS = 4;
 const CARD_GAP = 10;
-const HORIZONTAL_PADDING = 16;
+const HORIZONTAL_PADDING = 24;
 
 const keyExtractor = (item: Ingredient) => item.id;
 
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
   },
   recognizedHeader: {
     gap: 6,
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
   },
   recognizedTitle: {
     fontSize: 20,
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   actionButton: {
-    marginHorizontal: 16,
+    marginHorizontal: 24,
     marginBottom: 20,
   },
   cameraContainer: {

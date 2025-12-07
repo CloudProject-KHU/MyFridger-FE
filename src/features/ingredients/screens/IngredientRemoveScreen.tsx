@@ -14,7 +14,7 @@ import {
 
 const CARD_COLUMNS = 4;
 const CARD_GAP = 10;
-const HORIZONTAL_PADDING = 16;
+const HORIZONTAL_PADDING = 24;
 
 const keyExtractor = (item: Ingredient) => item.id;
 

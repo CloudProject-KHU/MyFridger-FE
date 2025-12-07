@@ -246,8 +246,8 @@ const styles = StyleSheet.create({
   },
   section: {
     backgroundColor: '#f5f5f5',
-    marginBottom: 12,
-    marginHorizontal: 16,
+    marginBottom: 20,
+    marginHorizontal: 24,
     borderRadius: 16,
   },
   sectionTitle: {

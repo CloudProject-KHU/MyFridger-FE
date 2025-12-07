@@ -31,7 +31,7 @@ const ALL_INGREDIENTS: Ingredient[] = INGREDIENT_ICON_CATEGORIES.flatMap((catego
 
 const CARD_COLUMNS = 4;
 const CARD_GAP = 10;
-const HORIZONTAL_PADDING = 16;
+const HORIZONTAL_PADDING = 24;
 
 const keyExtractor = (item: Ingredient) => item.id;
 
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     gap: 12,
   },
   searchBar: {
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   actionButton: {
-    marginHorizontal: 16,
+    marginHorizontal: 24,
     marginBottom: 20,
     marginTop: 16,
   },
