@@ -69,6 +69,7 @@ export const INGREDIENT_NAME_TO_CATEGORY: Record<string, string> = {
   '콩나물': 'vegetable',
   '숙주': 'vegetable',
   '깻잎': 'vegetable',
+  '청양고추': 'vegetable',
   
   // 과일 (fruit)
   '사과': 'fruit',
@@ -133,6 +134,7 @@ export const INGREDIENT_NAME_TO_CATEGORY: Record<string, string> = {
   '다시마': 'seafood',
   '낙지': 'seafood',
   '문어': 'seafood',
+  '황태': 'seafood',
   
   // 유제품/가공 (dairy_processed)
   '버터': 'dairy_processed',
@@ -168,6 +170,7 @@ export const INGREDIENT_NAME_TO_CATEGORY: Record<string, string> = {
   '고춧기름': 'seasoning',
   '참깨': 'seasoning',
   '카레가루': 'seasoning',
+  '다진마늘': 'seasoning',
 };
 
 // 재료 이름으로 카테고리를 찾는 헬퍼 함수
@@ -189,7 +192,7 @@ function guessCategoryByKeyword(name: string): string {
   // 해산물 (seafood)
   if (nameLower.includes('생선') || nameLower.includes('참치') || nameLower.includes('게') || nameLower.includes('새우') || nameLower.includes('조개') || nameLower.includes('오징어') ||
       nameLower.includes('홍합') || nameLower.includes('가리비') || nameLower.includes('연어') || nameLower.includes('전복') || nameLower.includes('멸치') || 
-      nameLower.includes('다시마') || nameLower.includes('낙지') || nameLower.includes('문어')) {
+      nameLower.includes('다시마') || nameLower.includes('낙지') || nameLower.includes('문어') || nameLower.includes('황태')) {
     return 'seafood';
   }
   
@@ -202,7 +205,7 @@ function guessCategoryByKeyword(name: string): string {
   // 양념/조미료 (seasoning)
   if (nameLower.includes('간장') || nameLower.includes('소금') || nameLower.includes('설탕') || nameLower.includes('참기름') || nameLower.includes('고추장') || nameLower.includes('된장') || nameLower.includes('청국장') ||
       nameLower.includes('후추') || nameLower.includes('고춧가루') || nameLower.includes('굴소스') || nameLower.includes('마요네즈') || nameLower.includes('스리라차') || 
-      nameLower.includes('고춧기름') || nameLower.includes('참깨') || nameLower.includes('검은깨') || nameLower.includes('깨') || nameLower.includes('카레가루') || nameLower.includes('식초')) {
+      nameLower.includes('고춧기름') || nameLower.includes('참깨') || nameLower.includes('검은깨') || nameLower.includes('깨') || nameLower.includes('카레가루') || nameLower.includes('식초') || nameLower.includes('다진마늘')) {
     return 'seasoning';
   }
   
@@ -277,6 +280,7 @@ export const INGREDIENT_NAME_TO_EXPIRY_DAYS: Record<string, number> = {
   '콩나물': 3,
   '숙주': 3,
   '깻잎': 14,
+  '청양고추': 10,
 
   // 과일 (fruit)
   '사과': 30,
@@ -341,6 +345,7 @@ export const INGREDIENT_NAME_TO_EXPIRY_DAYS: Record<string, number> = {
   '다시마': 365,
   '낙지': 2,
   '문어': 2,
+  '황태': 180,
 
   // 유제품/가공 (dairy_processed)
   '버터': 60,
@@ -376,6 +381,7 @@ export const INGREDIENT_NAME_TO_EXPIRY_DAYS: Record<string, number> = {
   '고춧기름': 180,
   '참깨': 180,
   '카레가루': 365,
+  '다진마늘': 30,
 };
 
 // 재료 이름으로 유통기한 일수를 찾는 헬퍼 함수

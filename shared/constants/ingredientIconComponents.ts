@@ -90,6 +90,7 @@ import SweetPotatoIcon from '@/assets/images/ingredients/sweet_potato.svg';
 import TofuIcon from '@/assets/images/ingredients/tofu.svg';
 import TomatoIcon from '@/assets/images/ingredients/tomato.svg';
 import VegetableIcon from '@/assets/images/ingredients/vegetable.svg';
+import WaterIcon from '@/assets/images/ingredients/water.svg';
 import WatermelonIcon from '@/assets/images/ingredients/watermelon.svg';
 import ZucchiniIcon from '@/assets/images/ingredients/zucchini.svg';
 
@@ -119,6 +120,7 @@ export const INGREDIENT_ICON_COMPONENTS: Record<string, IngredientIconComponent>
   cream_cheese: CheeseIcon,
   chicken_breast: ChickenIcon,
   chicken_thigh: ChickenIcon,
+  cheongyang_chili: ChiliIcon,
   chive: AsparagusIcon,
   chili: ChiliIcon,
   cilantro: SpinachIcon,
@@ -137,10 +139,12 @@ export const INGREDIENT_ICON_COMPONENTS: Record<string, IngredientIconComponent>
   egg: EggIcon,
   eggplant: EggplantIcon,
   etc: EtcIcon,
+  dried_pollack: FishIcon,
   fish: FishIcon,
   fruit: FruitIcon,
   garlic: GarlicIcon,
   garlic_chive: AsparagusIcon,
+  minced_garlic: GarlicIcon,
   grape: GrapeIcon,
   grapefruit: GrapefruitIcon,
   greek_yogurt: CreamIcon,
@@ -204,6 +208,7 @@ export const INGREDIENT_ICON_COMPONENTS: Record<string, IngredientIconComponent>
   tomato: TomatoIcon,
   tuna_can: CannedIcon,
   vegetable: VegetableIcon,
+  water: WaterIcon,
   water_dropwort: BeanSproutIcon,
   watermelon: WatermelonIcon,
   whipping_cream: CreamIcon,

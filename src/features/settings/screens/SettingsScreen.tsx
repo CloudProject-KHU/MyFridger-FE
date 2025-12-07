@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -12,8 +11,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import CarrotFaceIcon from '@/assets/images/character/carrot-face.svg';
+import ChevronRightIcon from '@/assets/images/icons/chevron-right.svg';
 import Header from '@/shared/components/navigation/Header';
-import ActionButton from '@/shared/components/buttons/ActionButton';
 
 type ToggleSwitchProps = {
   value: boolean;
@@ -51,13 +51,12 @@ function MenuItem({ icon, text, value, onPress, rightComponent, danger }: MenuIt
       onPress={onPress}
     >
       <View style={styles.menuLeft}>
-        <Text style={styles.menuIcon}>{icon}</Text>
         <Text style={[styles.menuText, danger && styles.menuTextDanger]}>{text}</Text>
       </View>
       <View style={styles.menuRight}>
         {value && <Text style={styles.menuValue}>{value}</Text>}
         {rightComponent}
-        {!rightComponent && <Text style={styles.arrowIcon}>›</Text>}
+        {!rightComponent && <ChevronRightIcon width={20} height={20} color="#999" />}
       </View>
     </Pressable>
   );
@@ -122,19 +121,14 @@ export default function SettingsScreen() {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {/* 프로필 섹션 */}
         <Pressable style={styles.profileSection} onPress={() => Alert.alert('프로필 편집', '프로필 편집 페이지로 이동합니다')}>
-          <LinearGradient
-            colors={['#FFAE2C', '#FFD700']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.profileImage}
-          >
-            <Text style={styles.profileImageText}>👤</Text>
-          </LinearGradient>
+          <View style={styles.profileImage}>
+            <CarrotFaceIcon width={64} height={64} />
+          </View>
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>사용자 이름</Text>
             <Text style={styles.profileEmail}>user@example.com</Text>
           </View>
-          <Text style={styles.arrowIcon}>›</Text>
+          <ChevronRightIcon width={20} height={20} color="#999" />
         </Pressable>
 
         {/* 알림 설정 */}
@@ -213,7 +207,7 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#FFFFFF',
   },
   scrollView: {
     flex: 1,
@@ -222,7 +216,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   profileSection: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     padding: 24,
     marginBottom: 12,
     flexDirection: 'row',
@@ -233,11 +227,9 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  profileImageText: {
-    fontSize: 32,
   },
   profileInfo: {
     flex: 1,
@@ -253,8 +245,10 @@ const styles = StyleSheet.create({
     color: '#999',
   },
   section: {
-    backgroundColor: 'white',
+    backgroundColor: '#f5f5f5',
     marginBottom: 12,
+    marginHorizontal: 16,
+    borderRadius: 16,
   },
   sectionTitle: {
     padding: 16,
@@ -301,6 +295,7 @@ const styles = StyleSheet.create({
   },
   menuValue: {
     fontSize: 14,
+    fontWeight: '700',
     color: '#999',
   },
   arrowIcon: {

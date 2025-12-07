@@ -58,6 +58,7 @@ export const INGREDIENT_ICON_CATEGORIES: IngredientIconCategory[] = [
       { id: 'bean_sprout', name: '콩나물' },
       { id: 'mung_bean_sprout', name: '숙주' },
       { id: 'perilla_leaf', name: '깻잎' },
+      { id: 'cheongyang_chili', name: '청양고추' },
     ],
   },
   {
@@ -138,6 +139,7 @@ export const INGREDIENT_ICON_CATEGORIES: IngredientIconCategory[] = [
       { id: 'kelp', name: '다시마' },
       { id: 'octopus', name: '낙지' },
       { id: 'octopus_large', name: '문어' },
+      { id: 'dried_pollack', name: '황태' },
     ],
   },
   {
@@ -185,13 +187,17 @@ export const INGREDIENT_ICON_CATEGORIES: IngredientIconCategory[] = [
       { id: 'chili_oil', name: '고춧기름' },
       { id: 'sesame', name: '참깨' },
       { id: 'curry_powder', name: '카레가루' },
+      { id: 'minced_garlic', name: '다진마늘' },
     ],
   },
   {
     value: 'etc',
     label: '기타',
     defaultIconId: 'etc',
-    items: [{ id: 'etc', name: '기타' }],
+    items: [
+      { id: 'etc', name: '기타' },
+      { id: 'water', name: '물' },
+    ],
   },
   {
     value: 'homemade',
