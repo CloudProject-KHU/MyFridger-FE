@@ -49,6 +49,22 @@ export type RecipeDetail = {
 
 
 
+/**
+ * 재료 이름에서 접두사 제거
+ * "●주재료 : 감자 100g(1개)" -> "감자 100g(1개)"
+ * "●소스 : 오렌지즙 15g(1큰술)" -> "오렌지즙 15g(1큰술)"
+ */
+function cleanMaterialName(materialName: string): string {
+  // "●" 제거
+  let cleaned = materialName.replace(/●/g, '').trim();
+  
+  // "주재료 :", "소스 :", "장식 :" 등의 패턴 제거
+  // ":" 앞의 한글 단어와 ":" 뒤의 공백까지 제거
+  cleaned = cleaned.replace(/^[가-힣\s]+:\s*/, '').trim();
+  
+  return cleaned;
+}
+
 // API 응답을 프론트엔드 타입으로 변환
 function mapRecipeInstructionToDetail(response: RecipeInstructionResponse): RecipeDetail {
   // 태그 생성 (recipe_pat, method)
@@ -61,23 +77,36 @@ function mapRecipeInstructionToDetail(response: RecipeInstructionResponse): Reci
   }
 
   // 재료 매핑 (첫 번째 항목 제외 - 레시피 이름이므로)
-  const items: RecipeItem[] = response.material_names
+  const items: RecipeItem[] = [];
+  let itemIndex = 0;
+  
+  response.material_names
     .slice(1) // 첫 번째 항목 제외
-    .map((materialName, index) => {
-      const { name, amount } = parseMaterialName(materialName);
+    .forEach((materialName) => {
+      // 접두사 제거 (●주재료 :, ●소스 :, ●장식 : 등)
+      const cleanedName = cleanMaterialName(materialName);
+      
+      // 빈 문자열이면 스킵
+      if (!cleanedName.trim()) {
+        return;
+      }
+      
+      const { name, amount } = parseMaterialName(cleanedName);
       // 재료 이름에서 띄어쓰기 제거 (예: "다진 마늘" -> "다진마늘")
       const nameWithoutSpaces = name.replace(/\s+/g, '');
       const category = getCategoryByIngredientNameOrGuess(nameWithoutSpaces);
       const iconId = findIconIdByName(nameWithoutSpaces, category);
       
-      return {
-        id: `material-${index + 1}`, // 인덱스는 1부터 시작 (첫 번째 제외했으므로)
+      items.push({
+        id: `material-${itemIndex + 1}`,
         name: nameWithoutSpaces,
         iconId,
         category,
         amount,
         hasStock: undefined, // API에서 제공하지 않으므로 undefined
-      };
+      });
+      
+      itemIndex++;
     });
 
   // 조리 과정 매핑
