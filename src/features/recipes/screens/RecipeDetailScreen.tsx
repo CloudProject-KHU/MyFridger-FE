@@ -179,7 +179,7 @@ export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   // 테스트를 위해 ID를 39로 고정
-  const recipeId = '36'; // id || '39';
+  const recipeId = '111'; // id || '39';
   const [recipe, setRecipe] = useState<RecipeDetail | null>(null);
   const [userIngredients, setUserIngredients] = useState<Ingredient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
