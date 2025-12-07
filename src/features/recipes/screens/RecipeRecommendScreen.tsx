@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   listContent: {
-    padding: 16,
+    padding: 24,
     paddingBottom: 100, // 탭바 높이 고려
   },
   card: {

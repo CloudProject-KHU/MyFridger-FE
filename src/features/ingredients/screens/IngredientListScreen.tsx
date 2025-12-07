@@ -20,7 +20,7 @@ import { Ingredient } from '@features/ingredients/types';
 
 const CARD_COLUMNS = 4;
 const CARD_GAP = 10;
-const HORIZONTAL_PADDING = 16;
+const HORIZONTAL_PADDING = 24;
 
 const keyExtractor = (item: Ingredient) => item.id;
 
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   tabsContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     marginBottom: 12,
   },
   tabsContent: {
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 100, // 탭바 높이 고려
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
   },
   cardWrapper: {
     marginBottom: CARD_GAP,

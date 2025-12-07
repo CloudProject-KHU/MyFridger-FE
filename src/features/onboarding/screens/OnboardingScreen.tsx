@@ -21,6 +21,11 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
+import BackAvocadoIcon from '@/assets/images/character/back-avocado.svg';
+import BackBroccoliIcon from '@/assets/images/character/back-brocolli.svg';
+import BackCarrotIcon from '@/assets/images/character/back-carrot.svg';
+import BackGarlicIcon from '@/assets/images/character/back-garlic.svg';
+import BackTomatoIcon from '@/assets/images/character/back-tomato.svg';
 import CarrotCameraIcon from '@/assets/images/character/carrot-camera.svg';
 import CarrotNiceIcon from '@/assets/images/character/carrot-nice.svg';
 import CarrotStudyIcon from '@/assets/images/character/carrot-study.svg';
@@ -34,6 +39,15 @@ type Slide = {
   icon: string;
   floatingIcons: string[];
 };
+
+// 첫 번째 슬라이드의 떠다니는 아이콘 SVG 컴포넌트
+const firstSlideFloatingIcons = [
+  BackCarrotIcon,
+  BackBroccoliIcon,
+  BackTomatoIcon,
+  BackAvocadoIcon,
+  BackGarlicIcon,
+];
 
 const slides: Slide[] = [
   {
@@ -225,8 +239,8 @@ export default function OnboardingScreen() {
     { top: '10%', left: '15%' },
     { top: '20%', right: '10%' },
     { bottom: '25%', left: '10%' },
-    { bottom: '15%', right: '15%' },
-    { top: '50%', left: '5%' },
+    { bottom: '8%', right: '25%' },
+    { top: '50%', right: '10%' },
   ];
 
   return (
@@ -293,6 +307,9 @@ export default function OnboardingScreen() {
                         outputRange: ['0deg', '5deg'],
                       });
 
+                      // 첫 번째 슬라이드일 때 SVG 아이콘 사용
+                      const IconComponent = slideIndex === 0 ? firstSlideFloatingIcons[index] : null;
+
                       return (
                         <Animated.View
                           key={`${slideIndex}-${index}`}
@@ -308,7 +325,11 @@ export default function OnboardingScreen() {
                             },
                           ]}
                         >
-                          <Text style={styles.floatingIconText}>{icon}</Text>
+                          {IconComponent ? (
+                            <IconComponent width={48} height={48} />
+                          ) : (
+                            <Text style={styles.floatingIconText}>{icon}</Text>
+                          )}
                         </Animated.View>
                       );
                     })}
