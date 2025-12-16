@@ -2,6 +2,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
+import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
@@ -72,6 +73,18 @@ function RootLayoutNav() {
     };
 
     checkOnboarding();
+  }, [router]);
+
+  // 알림 탭했을 때 홈 탭으로 이동
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(() => {
+      // 어떤 알림이든 탭하면 홈 탭으로 이동
+      router.replace('/(tabs)');
+    });
+
+    return () => {
+      subscription.remove();
+    };
   }, [router]);
 
   return (
