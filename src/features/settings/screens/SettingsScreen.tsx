@@ -16,7 +16,7 @@ import ChevronRightIcon from '@/assets/images/icons/chevron-right.svg';
 import Header from '@/shared/components/navigation/Header';
 import {
   registerForPushNotificationsAsync,
-  sendD3ExpiryNotificationsFromApi,
+  sendTestNotification,
 } from '@/shared/utils/notifications';
 
 type ToggleSwitchProps = {
@@ -130,17 +130,15 @@ export default function SettingsScreen() {
       return;
     }
 
-    // D-3 남은 재료들에 대한 소비기한 알림 전송
-    try {
-      const count = await sendD3ExpiryNotificationsFromApi();
-      if (count > 0) {
-        Alert.alert('D-3 알림 전송', `D-3 남은 재료 ${count}개에 대한 알림을 전송했습니다.`);
-      } else {
-        Alert.alert('D-3 알림 없음', '현재 D-3 남은 재료가 없습니다.');
-      }
-    } catch (error) {
-      console.error('D-3 알림 전송 실패:', error);
-      Alert.alert('알림 전송 실패', 'D-3 알림 전송 중 오류가 발생했습니다.');
+    // 간단한 로컬 테스트 알림만 전송 (백엔드 알림 API 사용 안 함)
+    // 기본 멘트:
+    // 제목: "소비기한이 얼마남지 않았어요!"
+    // 내용: "재료의 소비기한을 확인해보세요."
+    const success = await sendTestNotification();
+    if (success) {
+      Alert.alert('알림 전송', '테스트 알림을 전송했습니다.');
+    } else {
+      Alert.alert('알림 전송 실패', '테스트 알림 전송 중 오류가 발생했습니다.');
     }
   };
 
