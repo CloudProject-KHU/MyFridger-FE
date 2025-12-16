@@ -6,6 +6,7 @@
 
 import { getCategoryByIngredientNameOrGuess } from '@shared/constants/ingredientCategories';
 import { findIconIdByName, parseMaterialName } from '@shared/utils/ingredientUtils';
+import { getAuthHeader } from '@features/auth/services/auth.storage';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://13.124.139.199';
 
@@ -19,6 +20,23 @@ export type RecipeInstructionResponse = {
   instructions: string[];
   material_names: string[];
   image_url: string[];
+};
+
+// 레시피 추천 목록 응답 타입
+export type RecipeRecommendationResponse = {
+  id: number; // recommendation id (피드백용)
+  recipe_id: number;
+  recipe_name: string;
+  thumbnail_url: string;
+  recipe_pat: string;
+  method: string;
+  matched_materials: string[];
+  missing_materials: string[];
+  high_priority_materials: string[];
+};
+
+export type RecipeRecommendationListResponse = {
+  result?: RecipeRecommendationResponse[];
 };
 
 // 프론트엔드 타입
@@ -45,6 +63,14 @@ export type RecipeDetail = {
   imageUri?: string;
   items: RecipeItem[];
   steps: RecipeStep[];
+};
+
+// 냉장고 레시피 목록(요약) 타입
+export type RecommendedRecipe = {
+  id: string; // recipe_id (상세 조회에 사용)
+  title: string;
+  tags?: string[];
+  imageUri?: string;
 };
 
 
@@ -157,4 +183,59 @@ export async function fetchRecipeInstruction(recipeId: string | number): Promise
   const data = (await response.json()) as RecipeInstructionResponse;
   return mapRecipeInstructionToDetail(data);
 }
+
+// 냉장고 보유 식재료 기반 레시피 추천 목록 조회
+type FetchRecommendedRecipesParams = {
+  userId: string;
+  limit?: number;
+  minMatchRatio?: number;
+};
+
+export async function fetchRecommendedRecipes(
+  params: FetchRecommendedRecipesParams,
+): Promise<RecommendedRecipe[]> {
+  const { userId, limit = 10, minMatchRatio = 0.3 } = params;
+
+  const url = `${API_BASE_URL}/recommends/recipes`;
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    accept: 'application/json',
+  };
+  const authHeader = getAuthHeader();
+  if (authHeader) {
+    headers.Authorization = authHeader;
+  }
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      user_id: userId,
+      limit,
+      min_match_ratio: minMatchRatio,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`레시피 추천 목록 조회 실패 (${response.status})`);
+  }
+
+  const data = (await response.json()) as RecipeRecommendationListResponse;
+  const list = Array.isArray(data.result) ? data.result : [];
+
+  return list.map((item) => {
+    const tags: string[] = [];
+    if (item.recipe_pat) tags.push(item.recipe_pat);
+    if (item.method) tags.push(item.method);
+
+    return {
+      id: String(item.recipe_id), // 상세 조회 시 /recipes/{recipe_id}/instruction 사용
+      title: item.recipe_name,
+      tags: tags.length > 0 ? tags : undefined,
+      imageUri: item.thumbnail_url || undefined,
+    };
+  });
+}
+
 

@@ -178,8 +178,9 @@ type DeductionItem = {
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  // 테스트를 위해 ID를 39로 고정
-  const recipeId = '39'; // id || '39';
+  // 라우트 파라미터로 전달된 레시피 ID 사용
+  // id가 없을 때만 안전하게 기본값(39)으로 fallback
+  const recipeId = id || '39';
   const [recipe, setRecipe] = useState<RecipeDetail | null>(null);
   const [userIngredients, setUserIngredients] = useState<Ingredient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
