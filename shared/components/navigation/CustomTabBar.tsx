@@ -203,7 +203,7 @@ export default function CustomTabBar({
     // 라우팅을 먼저 시작하고, 메뉴는 다음 틱에서 닫기
     router.push('/add/select' as never);
     setTimeout(() => {
-      closeMenu();
+    closeMenu();
     }, 0);
   };
 
@@ -214,41 +214,41 @@ export default function CustomTabBar({
 
   return (
     <>
-      <View style={[styles.wrapper, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-        <View style={[styles.container, { backgroundColor: palette.background }]}>
-          {routes.map((route) => {
-            const isFocused = state.index === state.routes.indexOf(route);
-            const IconComponent = ROUTE_ICON[route.name as RouteKey];
+    <View style={[styles.wrapper, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+      <View style={[styles.container, { backgroundColor: palette.background }]}>
+        {routes.map((route) => {
+          const isFocused = state.index === state.routes.indexOf(route);
+          const IconComponent = ROUTE_ICON[route.name as RouteKey];
             const color = isFocused ? '#FFAE2C' : palette.tabIconDefault;
 
-            const onPress = () => {
-              const event = navigation.emit({
-                type: 'tabPress',
-                target: route.key,
-                canPreventDefault: true,
-              });
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
 
-              if (!isFocused && !event.defaultPrevented) {
-                navigation.navigate(route.name);
-              }
-            };
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
 
-            return (
-              <Pressable
-                key={route.key}
-                accessibilityRole="button"
-                accessibilityState={isFocused ? { selected: true } : {}}
-                accessibilityLabel={descriptors[route.key].options.tabBarAccessibilityLabel}
-                onPress={onPress}
-                style={styles.tabButton}
-              >
+          return (
+            <Pressable
+              key={route.key}
+              accessibilityRole="button"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              accessibilityLabel={descriptors[route.key].options.tabBarAccessibilityLabel}
+              onPress={onPress}
+              style={styles.tabButton}
+            >
                 <IconComponent width={32} height={32} color={color} />
-              </Pressable>
-            );
-          })}
+            </Pressable>
+          );
+        })}
 
           {isHomeTab && (
-            <View style={styles.fabContainer}>
+        <View style={styles.fabContainer}>
               <Pressable onPress={toggleMenu} style={styles.fabPressable}>
                 <Animated.View
                   style={[
@@ -296,10 +296,10 @@ export default function CustomTabBar({
                   >
                     <Pressable style={styles.fabIconButton} onPress={handleSearchPress}>
                       <SearchIcon width={23} height={23} color="#FFFFFF" />
-                    </Pressable>
-                  </Animated.View>
+                </Pressable>
+              </Animated.View>
                 </Animated.View>
-              </Pressable>
+            </Pressable>
             </View>
           )}
         </View>

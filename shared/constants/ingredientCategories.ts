@@ -171,6 +171,26 @@ export const INGREDIENT_NAME_TO_CATEGORY: Record<string, string> = {
   '참깨': 'seasoning',
   '카레가루': 'seasoning',
   '다진마늘': 'seasoning',
+  // 추가 조미료
+  '꿀': 'seasoning',
+  '까나리액젓': 'seasoning',
+  '굵은소금': 'seasoning',
+  '깨소금': 'seasoning',
+  '데리야끼소스': 'seasoning',
+  '돈까스소스': 'seasoning',
+  '멸치액젓': 'seasoning',
+  '물엿': 'seasoning',
+  '미원': 'seasoning',
+  '다시다': 'seasoning',
+  '쌈장': 'seasoning',
+  '올리고당': 'seasoning',
+  '올리브유': 'seasoning',
+  '짜강가루': 'seasoning',
+  '청국장': 'seasoning',
+  '초고추장': 'seasoning',
+  '춘장': 'seasoning',
+  '칠리소스': 'seasoning',
+  '핫소스': 'seasoning',
 };
 
 // 재료 이름으로 카테고리를 찾는 헬퍼 함수
@@ -205,7 +225,10 @@ function guessCategoryByKeyword(name: string): string {
   // 양념/조미료 (seasoning)
   if (nameLower.includes('간장') || nameLower.includes('소금') || nameLower.includes('설탕') || nameLower.includes('참기름') || nameLower.includes('고추장') || nameLower.includes('된장') || nameLower.includes('청국장') ||
       nameLower.includes('후추') || nameLower.includes('고춧가루') || nameLower.includes('굴소스') || nameLower.includes('마요네즈') || nameLower.includes('스리라차') || 
-      nameLower.includes('고춧기름') || nameLower.includes('참깨') || nameLower.includes('검은깨') || nameLower.includes('깨') || nameLower.includes('카레가루') || nameLower.includes('식초') || nameLower.includes('다진마늘')) {
+      nameLower.includes('고춧기름') || nameLower.includes('참깨') || nameLower.includes('검은깨') || nameLower.includes('깨') || nameLower.includes('카레가루') || nameLower.includes('식초') || nameLower.includes('다진마늘') ||
+      nameLower.includes('꿀') || nameLower.includes('까나리액젓') || nameLower.includes('굵은소금') || nameLower.includes('깨소금') || nameLower.includes('데리야끼') || nameLower.includes('돈까스소스') ||
+      nameLower.includes('멸치액젓') || nameLower.includes('물엿') || nameLower.includes('미원') || nameLower.includes('다시다') || nameLower.includes('쌈장') || nameLower.includes('올리고당') ||
+      nameLower.includes('올리브유') || nameLower.includes('짜강가루') || nameLower.includes('초고추장') || nameLower.includes('춘장') || nameLower.includes('칠리소스') || nameLower.includes('핫소스')) {
     return 'seasoning';
   }
   
@@ -382,6 +405,26 @@ export const INGREDIENT_NAME_TO_EXPIRY_DAYS: Record<string, number> = {
   '참깨': 180,
   '카레가루': 365,
   '다진마늘': 30,
+  // 추가 조미료
+  '꿀': 365,
+  '까나리액젓': 180,
+  '굵은소금': 365,
+  '깨소금': 180,
+  '데리야끼소스': 180,
+  '돈까스소스': 180,
+  '멸치액젓': 180,
+  '물엿': 365,
+  '미원': 365,
+  '다시다': 365,
+  '쌈장': 180,
+  '올리고당': 365,
+  '올리브유': 180,
+  '짜강가루': 365,
+  '청국장': 180,
+  '초고추장': 180,
+  '춘장': 180,
+  '칠리소스': 180,
+  '핫소스': 180,
 };
 
 // 재료 이름으로 유통기한 일수를 찾는 헬퍼 함수

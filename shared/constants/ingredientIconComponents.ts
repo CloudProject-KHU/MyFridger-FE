@@ -214,5 +214,28 @@ export const INGREDIENT_ICON_COMPONENTS: Record<string, IngredientIconComponent>
   whipping_cream: CreamIcon,
   yogurt: CreamIcon,
   zucchini: ZucchiniIcon,
+  // 새로 추가된 조미료 - 기본 조미료 아이콘 사용
+  honey: SeasoningIcon,
+  anchovy_sauce: SeasoningIcon,
+  coarse_salt: SeasoningIcon,
+  ground_sesame: SeasoningIcon,
+  teriyaki_sauce: SeasoningIcon,
+  tonkatsu_sauce: SeasoningIcon,
+  anchovy_fish_sauce: SeasoningIcon,
+  corn_syrup: SeasoningIcon,
+  msg: SeasoningIcon,
+  dashida: SeasoningIcon,
+  ssamjang: SeasoningIcon,
+  oligodang: SeasoningIcon,
+  olive_oil: SeasoningIcon,
+  jajang_powder: SeasoningIcon,
+  cheonggukjang: SeasoningIcon,
+  chogochujang: ChiliIcon,
+  chunjang: SeasoningIcon,
+  chili_sauce: SeasoningIcon,
+  hot_sauce: SeasoningIcon,
+  // 고추 관련 조미료 - 고추 아이콘 사용
+  gochujang: ChiliIcon,
+  red_pepper_powder: ChiliIcon,
 };
 

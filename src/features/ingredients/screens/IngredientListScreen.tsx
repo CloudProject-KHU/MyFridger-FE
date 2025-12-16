@@ -181,22 +181,22 @@ export default function IngredientListScreen() {
           </View>
         ) : (
           <>
-            <TagTabs
-              options={INGREDIENT_CATEGORY_OPTIONS}
-              activeValue={activeCategory}
-              onChange={setActiveCategory}
-              containerStyle={styles.tabsContainer}
-              contentStyle={styles.tabsContent}
-            />
-            <FlatList
-              data={filteredIngredients}
-              keyExtractor={keyExtractor}
-              renderItem={renderItem}
-              contentContainerStyle={styles.listContent}
-              numColumns={CARD_COLUMNS}
-              columnWrapperStyle={styles.columnWrapper}
-              showsVerticalScrollIndicator={false}
-            />
+        <TagTabs
+          options={INGREDIENT_CATEGORY_OPTIONS}
+          activeValue={activeCategory}
+          onChange={setActiveCategory}
+          containerStyle={styles.tabsContainer}
+          contentStyle={styles.tabsContent}
+        />
+        <FlatList
+          data={filteredIngredients}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+          numColumns={CARD_COLUMNS}
+          columnWrapperStyle={styles.columnWrapper}
+          showsVerticalScrollIndicator={false}
+        />
           </>
         )}
       </View>

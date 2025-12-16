@@ -109,15 +109,15 @@ export async function fetchIngredients(): Promise<Ingredient[]> {
       : `${API_BASE_URL}/materials`;
 
     const response = await fetch(url, {
-      method: 'GET',
-    });
+    method: 'GET',
+  });
 
-    if (!response.ok) {
-      throw new Error(`재료 목록 조회 실패 (${response.status})`);
-    }
+  if (!response.ok) {
+    throw new Error(`재료 목록 조회 실패 (${response.status})`);
+  }
 
-    const data = (await response.json()) as MaterialsListResponse;
-    const items = Array.isArray(data.result) ? data.result : [];
+  const data = (await response.json()) as MaterialsListResponse;
+  const items = Array.isArray(data.result) ? data.result : [];
     allItems.push(...items);
 
     // 다음 페이지가 있는지 확인
