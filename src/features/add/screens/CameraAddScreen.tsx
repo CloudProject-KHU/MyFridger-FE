@@ -12,6 +12,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
 import CarrotSadIcon from '@/assets/images/character/carrot-sad.svg';
 import CameraIcon from '@/assets/images/icons/camera.svg';
@@ -30,6 +31,7 @@ const HORIZONTAL_PADDING = 24;
 const keyExtractor = (item: Ingredient) => item.id;
 
 export default function CameraAddScreen() {
+  const router = useRouter();
   const { width: screenWidth } = useWindowDimensions();
   const [isCameraOpen, setCameraOpen] = React.useState(false);
   const [isResultModalOpen, setResultModalOpen] = React.useState(false);
@@ -111,10 +113,10 @@ export default function CameraAddScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({
       allowsMultipleSelection: false,
       quality: 0.7,
-      // HEIC 파일을 피하기 위해 JPEG와 PNG만 허용
-      // 서버가 HEIC를 지원하지 않을 수 있으므로
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      // iOS에서 HEIC 대신 JPEG를 반환하도록 강제
+      // NOTE: 최신 expo-image-picker에서는 mediaTypes 옵션 타입이 변경되어
+      // ImagePicker.MediaTypeOptions.Images 사용 시 크래시가 발생할 수 있어
+      // 기본값(이미지)으로 두고 옵션을 생략합니다.
+      // mediaTypes: ['images'],
       allowsEditing: false,
     });
 
@@ -272,6 +274,8 @@ export default function CameraAddScreen() {
                   setSelectedIds([]);
                   setRecognizedImageUri(null);
                   setResultModalOpen(false);
+                  // 홈(탭) 화면으로 이동
+                  router.replace('/(tabs)');
                 },
               },
             ]);

@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import {
+  Alert,
   Animated,
   KeyboardAvoidingView,
   Platform,
@@ -14,11 +15,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import CarrotIcon from '@/assets/images/character/carrot-character.svg';
+import { login } from '@features/auth/services/auth.api';
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   // 애니메이션 값들
   const headerFadeAnim = useRef(new Animated.Value(0)).current;
@@ -80,12 +83,28 @@ export default function LoginScreen() {
     };
   }, []);
 
-  const handleSubmit = () => {
-    // TODO: 실제 로그인 API 연동
-    console.log('로그인 시도:', { email, password });
+  const handleSubmit = async () => {
+    if (!email || !password) {
+      Alert.alert('로그인', '이메일과 비밀번호를 입력해주세요.');
+      return;
+    }
 
-    // 임시로 홈 탭으로 이동
-    router.replace('/(tabs)');
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      // 백엔드 스펙: { username, password }
+      const result = await login({ username: email, password });
+      console.log('로그인 성공:', result);
+      // TODO: 액세스 토큰/리프레시 토큰을 안전한 스토리지에 저장하고, 전역 상태로 관리
+
+      router.replace('/(tabs)');
+    } catch (error: any) {
+      console.error('로그인 실패:', error);
+      Alert.alert('로그인 실패', error?.message || '로그인 중 오류가 발생했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -157,8 +176,14 @@ export default function LoginScreen() {
                 />
               </View>
 
-              <Pressable style={styles.loginButton} onPress={handleSubmit}>
-                <Text style={styles.loginButtonText}>로그인</Text>
+              <Pressable
+                style={[styles.loginButton, isSubmitting && styles.loginButtonDisabled]}
+                onPress={handleSubmit}
+                disabled={isSubmitting}
+              >
+                <Text style={styles.loginButtonText}>
+                  {isSubmitting ? '로그인 중...' : '로그인'}
+                </Text>
               </Pressable>
 
               <Pressable
@@ -238,6 +263,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFAE2C',
+  },
+  loginButtonDisabled: {
+    opacity: 0.7,
   },
   loginButtonText: {
     fontSize: 17,

@@ -9,6 +9,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { isOnboardingCompleted } from '@features/onboarding/services/onboarding.storage';
 import { useColorScheme } from '@/shared/hooks/useColorScheme';
+import '@/shared/utils/notifications'; // 알림 핸들러 초기화
 
 export {
   // Catch any errors thrown by the Layout component.

@@ -9,6 +9,7 @@
  */
 
 import { Ingredient, IngredientCategory } from '@features/ingredients/types';
+import { getAuthHeader } from '@features/auth/services/auth.storage';
 import { findIconIdByName } from '@shared/utils/ingredientUtils';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://13.124.139.199';
@@ -195,11 +196,18 @@ export async function updateIngredientById(
 // ---- 재료 수동 등록 (/materials/manual) ----
 
 export async function createMaterialManual(payload: MaterialManualRequest): Promise<Ingredient> {
+  // Authorization 헤더 (로그인 후 발급받은 토큰) 추가
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  const authHeader = getAuthHeader();
+  if (authHeader) {
+    headers.Authorization = authHeader;
+  }
+
   const response = await fetch(`${API_BASE_URL}/materials/manual`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify(payload),
   });
 
@@ -255,27 +263,11 @@ export async function createMaterialsFromReceipt(
     normalizedUri = normalizedUri;
   }
   
-  // MIME 타입 결정: 전달받은 mimeType을 우선 사용, 없으면 파일 확장자로 추정
-  let finalMimeType = mimeType;
-  if (!finalMimeType) {
-    const fileExtension = fileName?.split('.').pop()?.toLowerCase() || 'jpg';
-    if (fileExtension === 'png') {
-      finalMimeType = 'image/png';
-    } else if (fileExtension === 'jpeg' || fileExtension === 'jpg') {
-      finalMimeType = 'image/jpeg';
-    } else if (fileExtension === 'webp') {
-      finalMimeType = 'image/webp';
-    } else if (fileExtension === 'heic' || fileExtension === 'heif') {
-      // HEIC 파일은 JPEG로 변환되거나 서버가 지원하지 않을 수 있으므로
-      // 일반적으로 JPEG로 변환해서 전송
-      finalMimeType = 'image/jpeg';
-    } else {
-      finalMimeType = 'image/jpeg'; // 기본값
-    }
-  }
-  
-  // 파일 확장자 결정 (파일 이름이 없을 때 사용)
-  const fileExtension = fileName?.split('.').pop()?.toLowerCase() || 'jpg';
+  // 서버 요구사항: jpg만 허용
+  // - MIME 타입은 항상 image/jpeg
+  // - 파일 이름도 .jpg 확장자를 사용
+  const finalMimeType = 'image/jpeg';
+  const uploadFileName = 'receipt.jpg';
   
   // FormData에 파일 추가
   // React Native FormData 형식: { uri, type, name }
@@ -284,22 +276,26 @@ export async function createMaterialsFromReceipt(
   formData.append('file', {
     uri: normalizedUri,
     type: finalMimeType,
-    name: fileName || `receipt.${fileExtension}`,
+    name: uploadFileName,
   } as any);
 
   console.log('OCR API 호출:', {
     uri: normalizedUri,
     type: finalMimeType,
-    name: fileName || `receipt.${fileExtension}`,
+    name: uploadFileName,
     apiUrl: `${API_BASE_URL}/materials/receipt`,
   });
 
+  // Authorization 헤더 추가 (FormData 전송 시 Content-Type은 지정하지 않음)
+  const headers: Record<string, string> = {};
+  const authHeader = getAuthHeader();
+  if (authHeader) {
+    headers.Authorization = authHeader;
+  }
+
   const response = await fetch(`${API_BASE_URL}/materials/receipt`, {
     method: 'POST',
-    headers: {
-      // FormData를 사용할 때는 Content-Type을 명시하지 않습니다
-      // React Native가 자동으로 multipart/form-data와 boundary를 설정합니다
-    },
+    headers,
     body: formData,
   });
 
@@ -371,11 +367,18 @@ export async function estimateExpiryDate(
 ): Promise<EstimateExpiryResponse> {
   const url = `${API_BASE_URL}/recommends/expire?use_ai=${useAi}`;
   
+  // Authorization 헤더 추가
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  const authHeader = getAuthHeader();
+  if (authHeader) {
+    headers.Authorization = authHeader;
+  }
+
   const response = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify(payload),
   });
 

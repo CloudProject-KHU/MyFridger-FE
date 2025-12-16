@@ -14,6 +14,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CarrotFaceIcon from '@/assets/images/character/carrot-face.svg';
 import ChevronRightIcon from '@/assets/images/icons/chevron-right.svg';
 import Header from '@/shared/components/navigation/Header';
+import {
+  registerForPushNotificationsAsync,
+  sendD3ExpiryNotificationsFromApi,
+} from '@/shared/utils/notifications';
 
 type ToggleSwitchProps = {
   value: boolean;
@@ -115,6 +119,31 @@ export default function SettingsScreen() {
     router.replace('/auth/login');
   };
 
+  const handleTestNotification = async () => {
+    // 권한 확인 및 요청 (로컬 알림만 사용하므로 푸시 토큰 불필요)
+    const result = await registerForPushNotificationsAsync(false);
+    if (!result) {
+      Alert.alert(
+        '알림 권한 필요',
+        '알림을 받으려면 권한이 필요합니다. 설정에서 알림 권한을 허용해주세요.',
+      );
+      return;
+    }
+
+    // D-3 남은 재료들에 대한 소비기한 알림 전송
+    try {
+      const count = await sendD3ExpiryNotificationsFromApi();
+      if (count > 0) {
+        Alert.alert('D-3 알림 전송', `D-3 남은 재료 ${count}개에 대한 알림을 전송했습니다.`);
+      } else {
+        Alert.alert('D-3 알림 없음', '현재 D-3 남은 재료가 없습니다.');
+      }
+    } catch (error) {
+      console.error('D-3 알림 전송 실패:', error);
+      Alert.alert('알림 전송 실패', 'D-3 알림 전송 중 오류가 발생했습니다.');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
       <Header title="설정" hideDivider />
@@ -144,6 +173,11 @@ export default function SettingsScreen() {
             text="유통기한 알림"
             value="D-3일"
             onPress={() => Alert.alert('유통기한 알림', '유통기한 알림 설정 페이지로 이동합니다')}
+          />
+          <MenuItem
+            icon="🧪"
+            text="알림 테스트"
+            onPress={handleTestNotification}
           />
         </View>
 
