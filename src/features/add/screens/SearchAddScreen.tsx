@@ -17,10 +17,15 @@ import {
 import { INGREDIENT_ICON_CATEGORIES } from '@shared/constants/ingredientIcons';
 
 // ingredientIcons.ts의 데이터를 기반으로 모든 재료 목록 생성
-// "모음", "아이콘" 같은 것들은 제외
+// "모음", "아이콘", "물" 같은 것들은 제외
 const ALL_INGREDIENTS: Ingredient[] = INGREDIENT_ICON_CATEGORIES.flatMap((category) =>
   category.items
-    .filter((item) => !item.name.includes('모음') && !item.name.includes('아이콘'))
+    .filter(
+      (item) =>
+        !item.name.includes('모음') &&
+        !item.name.includes('아이콘') &&
+        item.name !== '물',
+    )
     .map((item, index) => ({
       id: `${category.value}-${item.id}`,
       name: item.name,

@@ -125,12 +125,12 @@ export default function IngredientRemoveScreen() {
             },
           ]}
         >
-          <IngredientCardSelectable
-            ingredient={item}
-            selected={selectedIds.includes(item.id)}
-            onPress={toggleSelect}
-          />
-        </View>
+        <IngredientCardSelectable
+          ingredient={item}
+          selected={selectedIds.includes(item.id)}
+          onPress={toggleSelect}
+        />
+      </View>
       );
     },
     [selectedIds, toggleSelect, cardWidth],
